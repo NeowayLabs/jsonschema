@@ -4,6 +4,24 @@ import (
 	"testing"
 )
 
+func TestCheckUsingInvalidSchemaMustReturnFalse(t *testing.T) {
+
+	schema := map[string]interface{}{
+		"intField": map[string]interface{}{},
+	}
+
+	data := map[string]interface{}{
+		"intField": "1",
+	}
+
+	expected := false
+	actual := Check(data, schema)
+
+	if actual != expected {
+		t.Error("Test failed. Expected", expected, "but returned", actual)
+	}
+}
+
 func TestCheckUsingFieldStringShouldReturnTrue(t *testing.T) {
 
 	schema := map[string]interface{}{
@@ -124,14 +142,75 @@ func TestCheckUsingFieldFloatShouldReturnFalseWhenTypeIsntFloat(t *testing.T) {
 	}
 }
 
-func TestCheckUsingInvalidSchemaMustReturnFalse(t *testing.T) {
+func TestCheckUsingFieldObjectShouldReturnTrue(t *testing.T) {
 
 	schema := map[string]interface{}{
-		"intField": map[string]interface{}{},
+		"objectField": map[string]interface{}{
+			"type": "object",
+			"format": map[string]interface{}{
+				"stringField": map[string]interface{}{
+					"type": "string",
+				},
+			},
+		},
 	}
 
 	data := map[string]interface{}{
-		"intField": "1",
+		"objectField": map[string]interface{}{
+			"stringField": "field",
+		},
+	}
+
+	expected := true
+	actual := Check(data, schema)
+
+	if actual != expected {
+		t.Error("Test failed. Expected", expected, "but returned", actual)
+	}
+}
+
+func TestCheckUsingFieldObjectShouldReturnFalseWhenTypeIsntObject(t *testing.T) {
+
+	schema := map[string]interface{}{
+		"objectField": map[string]interface{}{
+			"type": "object",
+			"format": map[string]interface{}{
+				"stringField": map[string]interface{}{
+					"type": "string",
+				},
+			},
+		},
+	}
+
+	data := map[string]interface{}{
+		"objectField": "field",
+	}
+
+	expected := false
+	actual := Check(data, schema)
+
+	if actual != expected {
+		t.Error("Test failed. Expected", expected, "but returned", actual)
+	}
+}
+
+func TestCheckUsingFieldObjectShouldReturnFalseWhenTypeInsideObjectIsntExpectedType(t *testing.T) {
+
+	schema := map[string]interface{}{
+		"objectField": map[string]interface{}{
+			"type": "object",
+			"format": map[string]interface{}{
+				"stringField": map[string]interface{}{
+					"type": "string",
+				},
+			},
+		},
+	}
+
+	data := map[string]interface{}{
+		"objectField": map[string]interface{}{
+			"stringField": 1,
+		},
 	}
 
 	expected := false
