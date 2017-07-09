@@ -83,3 +83,43 @@ func TestCheckUsingFieldIntShouldReturnFalseWhenTypeIsntInt(t *testing.T) {
 		t.Error("Test failed. Expected", expected, "but returned", actual)
 	}
 }
+
+func TestCheckUsingFieldFloatShouldReturnTrue(t *testing.T) {
+
+	schema := map[string]interface{}{
+		"intField": map[string]interface{}{
+			"type": "float",
+		},
+	}
+
+	data := map[string]interface{}{
+		"intField": 1.0,
+	}
+
+	expected := true
+	actual := Check(data, schema)
+
+	if actual != expected {
+		t.Error("Test failed. Expected", expected, "but returned", actual)
+	}
+}
+
+func TestCheckUsingFieldFloatShouldReturnFalseWhenTypeIsntFloat(t *testing.T) {
+
+	schema := map[string]interface{}{
+		"intField": map[string]interface{}{
+			"type": "float",
+		},
+	}
+
+	data := map[string]interface{}{
+		"intField": "1",
+	}
+
+	expected := false
+	actual := Check(data, schema)
+
+	if actual != expected {
+		t.Error("Test failed. Expected", expected, "but returned", actual)
+	}
+}

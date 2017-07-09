@@ -16,7 +16,7 @@ func Check(data, schema map[string]interface{}) bool {
 			fmt.Println("Value type", reflect.TypeOf(value).String())
 			fmt.Println("Schema type", s.(map[string]interface{})["type"].(string))
 
-			if reflect.TypeOf(value).String() != s.(map[string]interface{})["type"].(string) {
+			if reflect.TypeOf(value).String() != typeMapping(s.(map[string]interface{})["type"].(string)) {
 				return false
 			}
 		}
@@ -24,4 +24,17 @@ func Check(data, schema map[string]interface{}) bool {
 	}
 
 	return true
+}
+
+func typeMapping(t string) string {
+	types := map[string]string{
+		"float": "float64",
+	}
+
+	newType, found := types[t]
+	if found {
+		return newType
+	}
+
+	return t
 }
