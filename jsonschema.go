@@ -19,6 +19,8 @@ func Check(data, schema map[string]interface{}) bool {
 			if reflect.TypeOf(value).String() != typeMapping(s.(map[string]interface{})["type"].(string)) {
 				return false
 			}
+		} else {
+			return false
 		}
 
 	}

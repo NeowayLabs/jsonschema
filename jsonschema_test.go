@@ -123,3 +123,21 @@ func TestCheckUsingFieldFloatShouldReturnFalseWhenTypeIsntFloat(t *testing.T) {
 		t.Error("Test failed. Expected", expected, "but returned", actual)
 	}
 }
+
+func TestCheckUsingInvalidSchemaMustReturnFalse(t *testing.T) {
+
+	schema := map[string]interface{}{
+		"intField": map[string]interface{}{},
+	}
+
+	data := map[string]interface{}{
+		"intField": "1",
+	}
+
+	expected := false
+	actual := Check(data, schema)
+
+	if actual != expected {
+		t.Error("Test failed. Expected", expected, "but returned", actual)
+	}
+}
