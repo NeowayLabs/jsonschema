@@ -102,6 +102,13 @@ func validateObject(data, schema map[string]interface{}) bool {
 				} else {
 					return false
 				}
+			} else if t.(string) == "array" {
+				o := s.(map[string]interface{})["format"]
+				if o != nil && reflect.TypeOf(value).String() == "[]interface {}" && reflect.TypeOf(o).String() == "map[string]interface {}" {
+					return validateArray(value.([]interface{}), o.(map[string]interface{}))
+				} else {
+					return false
+				}
 			} else {
 				if reflect.TypeOf(value).String() != typeMapping(t.(string)) {
 					return false
