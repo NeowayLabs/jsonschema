@@ -220,3 +220,37 @@ func TestCheckUsingFieldObjectShouldReturnFalseWhenTypeInsideObjectIsntExpectedT
 		t.Error("Test failed. Expected", expected, "but returned", actual)
 	}
 }
+
+func TestCheckUsingMultipleFieldObjectShouldReturnTrue(t *testing.T) {
+
+	schema := map[string]interface{}{
+		"objectField": map[string]interface{}{
+			"type": "object",
+			"format": map[string]interface{}{
+				"secondObjectField": map[string]interface{}{
+					"type": "object",
+					"format": map[string]interface{}{
+						"stringField": map[string]interface{}{
+							"type": "string",
+						},
+					},
+				},
+			},
+		},
+	}
+
+	data := map[string]interface{}{
+		"objectField": map[string]interface{}{
+			"secondObjectField": map[string]interface{}{
+				"stringField": "field",
+			},
+		},
+	}
+
+	expected := true
+	actual := Check(data, schema)
+
+	if actual != expected {
+		t.Error("Test failed. Expected", expected, "but returned", actual)
+	}
+}
