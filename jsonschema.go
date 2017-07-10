@@ -11,37 +11,41 @@ func Check(data, schema map[string]interface{}) bool {
 		fmt.Println("field:", field, ", Value:", value)
 		fmt.Println("schema:", schema[field])
 
+		if schema[field] == nil {
+			return false
+		}
+
 		s := schema[field]
 		t := s.(map[string]interface{})["type"]
-		if s != nil && t != nil {
-			fmt.Println("value type", reflect.TypeOf(value).String())
-			fmt.Println("schema type", t.(string))
+		if s == nil || t == nil {
+			return false
+		}
 
-			if t.(string) == "object" {
-				o := s.(map[string]interface{})["format"]
-				if o != nil && reflect.TypeOf(value).String() == "map[string]interface {}" && reflect.TypeOf(o).String() == "map[string]interface {}" {
-					if !validateObject(value.(map[string]interface{}), o.(map[string]interface{})) {
-						return false
-					}
-				} else {
-					return false
-				}
-			} else if t.(string) == "array" {
-				o := s.(map[string]interface{})["format"]
-				if o != nil && reflect.TypeOf(value).String() == "[]interface {}" && reflect.TypeOf(o).String() == "map[string]interface {}" {
-					if !validateArray(value.([]interface{}), o.(map[string]interface{})) {
-						return false
-					}
-				} else {
+		fmt.Println("value type", reflect.TypeOf(value).String())
+		fmt.Println("schema type", t.(string))
+
+		if t.(string) == "object" {
+			o := s.(map[string]interface{})["format"]
+			if o != nil && reflect.TypeOf(value).String() == "map[string]interface {}" && reflect.TypeOf(o).String() == "map[string]interface {}" {
+				if !validateObject(value.(map[string]interface{}), o.(map[string]interface{})) {
 					return false
 				}
 			} else {
-				if reflect.TypeOf(value).String() != typeMapping(t.(string)) {
+				return false
+			}
+		} else if t.(string) == "array" {
+			o := s.(map[string]interface{})["format"]
+			if o != nil && reflect.TypeOf(value).String() == "[]interface {}" && reflect.TypeOf(o).String() == "map[string]interface {}" {
+				if !validateArray(value.([]interface{}), o.(map[string]interface{})) {
 					return false
 				}
+			} else {
+				return false
 			}
 		} else {
-			return false
+			if reflect.TypeOf(value).String() != typeMapping(t.(string)) {
+				return false
+			}
 		}
 
 	}
@@ -89,33 +93,37 @@ func validateObject(data, schema map[string]interface{}) bool {
 		fmt.Println("field:", field, ", Value:", value)
 		fmt.Println("schema:", schema[field])
 
+		if schema[field] == nil {
+			return false
+		}
+
 		s := schema[field]
 		t := s.(map[string]interface{})["type"]
-		if s != nil && t != nil {
-			fmt.Println("value type", reflect.TypeOf(value).String())
-			fmt.Println("schema type", t.(string))
+		if s == nil || t == nil {
+			return false
+		}
 
-			if t.(string) == "object" {
-				o := s.(map[string]interface{})["format"]
-				if o != nil && reflect.TypeOf(value).String() == "map[string]interface {}" && reflect.TypeOf(o).String() == "map[string]interface {}" {
-					return validateObject(value.(map[string]interface{}), o.(map[string]interface{}))
-				} else {
-					return false
-				}
-			} else if t.(string) == "array" {
-				o := s.(map[string]interface{})["format"]
-				if o != nil && reflect.TypeOf(value).String() == "[]interface {}" && reflect.TypeOf(o).String() == "map[string]interface {}" {
-					return validateArray(value.([]interface{}), o.(map[string]interface{}))
-				} else {
-					return false
-				}
+		fmt.Println("value type", reflect.TypeOf(value).String())
+		fmt.Println("schema type", t.(string))
+
+		if t.(string) == "object" {
+			o := s.(map[string]interface{})["format"]
+			if o != nil && reflect.TypeOf(value).String() == "map[string]interface {}" && reflect.TypeOf(o).String() == "map[string]interface {}" {
+				return validateObject(value.(map[string]interface{}), o.(map[string]interface{}))
 			} else {
-				if reflect.TypeOf(value).String() != typeMapping(t.(string)) {
-					return false
-				}
+				return false
+			}
+		} else if t.(string) == "array" {
+			o := s.(map[string]interface{})["format"]
+			if o != nil && reflect.TypeOf(value).String() == "[]interface {}" && reflect.TypeOf(o).String() == "map[string]interface {}" {
+				return validateArray(value.([]interface{}), o.(map[string]interface{}))
+			} else {
+				return false
 			}
 		} else {
-			return false
+			if reflect.TypeOf(value).String() != typeMapping(t.(string)) {
+				return false
+			}
 		}
 	}
 

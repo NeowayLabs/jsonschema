@@ -456,3 +456,55 @@ func TestCheckUsingFieldObjectShouldReturnFalseWhenTypeInsideIsntExpectedType(t 
 		t.Error("Test failed. Expected", expected, "but returned", actual)
 	}
 }
+
+func TestCheckUsingFieldDoesntContainInSchema(t *testing.T) {
+
+	schema := map[string]interface{}{
+		"stringField": map[string]interface{}{
+			"type": "string",
+		},
+	}
+
+	data := map[string]interface{}{
+		"anotherField": 1,
+	}
+
+	expected := false
+	actual := Check(data, schema)
+
+	if actual != expected {
+		t.Error("Test failed. Expected", expected, "but returned", actual)
+	}
+}
+
+func TestCheckUsingNestedFieldDoesntContainInSchema(t *testing.T) {
+
+	schema := map[string]interface{}{
+		"arrayField": map[string]interface{}{
+			"type": "array",
+			"format": map[string]interface{}{
+				"type": "object",
+				"format": map[string]interface{}{
+					"stringField": map[string]interface{}{
+						"type": "string",
+					},
+				},
+			},
+		},
+	}
+
+	data := map[string]interface{}{
+		"arrayField": []interface{}{
+			map[string]interface{}{
+				"anotherField": "another",
+			},
+		},
+	}
+
+	expected := false
+	actual := Check(data, schema)
+
+	if actual != expected {
+		t.Error("Test failed. Expected", expected, "but returned", actual)
+	}
+}
