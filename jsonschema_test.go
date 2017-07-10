@@ -1,7 +1,9 @@
-package jsonschema
+package jsonschema_test
 
 import (
 	"testing"
+
+	"github.com/NeowayLabs/jsonschema"
 )
 
 func TestCheckUsingInvalidSchemaMustReturnFalse(t *testing.T) {
@@ -15,7 +17,7 @@ func TestCheckUsingInvalidSchemaMustReturnFalse(t *testing.T) {
 	}
 
 	expected := false
-	actual := Check(data, schema)
+	actual := jsonschema.Check(data, schema)
 
 	if actual != expected {
 		t.Error("Test failed. Expected", expected, "but returned", actual)
@@ -35,7 +37,7 @@ func TestCheckUsingFieldStringShouldReturnTrue(t *testing.T) {
 	}
 
 	expected := true
-	actual := Check(data, schema)
+	actual := jsonschema.Check(data, schema)
 
 	if actual != expected {
 		t.Error("Test failed. Expected", expected, "but returned", actual)
@@ -55,7 +57,7 @@ func TestCheckUsingFieldStringShouldReturnFalseWhenTypeIsntString(t *testing.T) 
 	}
 
 	expected := false
-	actual := Check(data, schema)
+	actual := jsonschema.Check(data, schema)
 
 	if actual != expected {
 		t.Error("Test failed. Expected", expected, "but returned", actual)
@@ -75,7 +77,7 @@ func TestCheckUsingFieldIntShouldReturnTrue(t *testing.T) {
 	}
 
 	expected := true
-	actual := Check(data, schema)
+	actual := jsonschema.Check(data, schema)
 
 	if actual != expected {
 		t.Error("Test failed. Expected", expected, "but returned", actual)
@@ -95,7 +97,7 @@ func TestCheckUsingFieldIntShouldReturnFalseWhenTypeIsntInt(t *testing.T) {
 	}
 
 	expected := false
-	actual := Check(data, schema)
+	actual := jsonschema.Check(data, schema)
 
 	if actual != expected {
 		t.Error("Test failed. Expected", expected, "but returned", actual)
@@ -115,7 +117,7 @@ func TestCheckUsingFieldFloatShouldReturnTrue(t *testing.T) {
 	}
 
 	expected := true
-	actual := Check(data, schema)
+	actual := jsonschema.Check(data, schema)
 
 	if actual != expected {
 		t.Error("Test failed. Expected", expected, "but returned", actual)
@@ -135,7 +137,7 @@ func TestCheckUsingFieldFloatShouldReturnFalseWhenTypeIsntFloat(t *testing.T) {
 	}
 
 	expected := false
-	actual := Check(data, schema)
+	actual := jsonschema.Check(data, schema)
 
 	if actual != expected {
 		t.Error("Test failed. Expected", expected, "but returned", actual)
@@ -162,7 +164,7 @@ func TestCheckUsingFieldObjectShouldReturnTrue(t *testing.T) {
 	}
 
 	expected := true
-	actual := Check(data, schema)
+	actual := jsonschema.Check(data, schema)
 
 	if actual != expected {
 		t.Error("Test failed. Expected", expected, "but returned", actual)
@@ -187,7 +189,7 @@ func TestCheckUsingFieldObjectShouldReturnFalseWhenTypeIsntObject(t *testing.T) 
 	}
 
 	expected := false
-	actual := Check(data, schema)
+	actual := jsonschema.Check(data, schema)
 
 	if actual != expected {
 		t.Error("Test failed. Expected", expected, "but returned", actual)
@@ -214,7 +216,7 @@ func TestCheckUsingFieldObjectShouldReturnFalseWhenTypeInsideObjectIsntExpectedT
 	}
 
 	expected := false
-	actual := Check(data, schema)
+	actual := jsonschema.Check(data, schema)
 
 	if actual != expected {
 		t.Error("Test failed. Expected", expected, "but returned", actual)
@@ -248,7 +250,7 @@ func TestCheckUsingMultipleFieldObjectShouldReturnTrue(t *testing.T) {
 	}
 
 	expected := true
-	actual := Check(data, schema)
+	actual := jsonschema.Check(data, schema)
 
 	if actual != expected {
 		t.Error("Test failed. Expected", expected, "but returned", actual)
@@ -280,7 +282,7 @@ func TestCheckUsingFieldArrayShouldReturnTrue(t *testing.T) {
 	}
 
 	expected := true
-	actual := Check(data, schema)
+	actual := jsonschema.Check(data, schema)
 
 	if actual != expected {
 		t.Error("Test failed. Expected", expected, "but returned", actual)
@@ -312,7 +314,7 @@ func TestCheckUsingFieldArrayShouldReturnFalseWhenTypeInsideArrayIsntExpectedTyp
 	}
 
 	expected := false
-	actual := Check(data, schema)
+	actual := jsonschema.Check(data, schema)
 
 	if actual != expected {
 		t.Error("Test failed. Expected", expected, "but returned", actual)
@@ -349,7 +351,7 @@ func TestCheckUsingMultipleFieldArrayShouldReturnTrue(t *testing.T) {
 	}
 
 	expected := true
-	actual := Check(data, schema)
+	actual := jsonschema.Check(data, schema)
 
 	if actual != expected {
 		t.Error("Test failed. Expected", expected, "but returned", actual)
@@ -386,7 +388,7 @@ func TestCheckUsingMultipleFieldArrayShouldReturnFalseWhenTypeInsideIsntExpected
 	}
 
 	expected := false
-	actual := Check(data, schema)
+	actual := jsonschema.Check(data, schema)
 
 	if actual != expected {
 		t.Error("Test failed. Expected", expected, "but returned", actual)
@@ -418,7 +420,7 @@ func TestCheckUsingFieldObjectWithArrayShouldReturnTrue(t *testing.T) {
 	}
 
 	expected := true
-	actual := Check(data, schema)
+	actual := jsonschema.Check(data, schema)
 
 	if actual != expected {
 		t.Error("Test failed. Expected", expected, "but returned", actual)
@@ -450,7 +452,7 @@ func TestCheckUsingFieldObjectShouldReturnFalseWhenTypeInsideIsntExpectedType(t 
 	}
 
 	expected := false
-	actual := Check(data, schema)
+	actual := jsonschema.Check(data, schema)
 
 	if actual != expected {
 		t.Error("Test failed. Expected", expected, "but returned", actual)
@@ -470,7 +472,7 @@ func TestCheckUsingFieldDoesntContainInSchema(t *testing.T) {
 	}
 
 	expected := false
-	actual := Check(data, schema)
+	actual := jsonschema.Check(data, schema)
 
 	if actual != expected {
 		t.Error("Test failed. Expected", expected, "but returned", actual)
@@ -502,7 +504,7 @@ func TestCheckUsingNestedFieldDoesntContainInSchema(t *testing.T) {
 	}
 
 	expected := false
-	actual := Check(data, schema)
+	actual := jsonschema.Check(data, schema)
 
 	if actual != expected {
 		t.Error("Test failed. Expected", expected, "but returned", actual)
