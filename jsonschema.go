@@ -27,15 +27,13 @@ func Check(data []byte, schema []byte) error {
 
 	for field, value := range parsedData {
 		if parsedSchema[field] == nil {
-			// TODO: test
-			return nil
+			return errors.New("TODO:1")
 		}
 
 		s := parsedSchema[field]
 		t := s.(map[string]interface{})["type"]
 		if s == nil || t == nil {
-			// TODO: test
-			return nil
+			return errors.New("TODO:2")
 		}
 
 		if t.(string) == "object" {
@@ -43,15 +41,13 @@ func Check(data []byte, schema []byte) error {
 			if o != nil && reflect.TypeOf(value).String() == "map[string]interface {}" && reflect.TypeOf(o).String() == "map[string]interface {}" {
 				return validateObject(value.(map[string]interface{}), o.(map[string]interface{}))
 			}
-			// TODO: test
-			return nil
+			return errors.New("TODO:3")
 		} else if t.(string) == "array" {
 			o := s.(map[string]interface{})["format"]
 			if o != nil && reflect.TypeOf(value).String() == "[]interface {}" && reflect.TypeOf(o).String() == "map[string]interface {}" {
 				return validateArray(value.([]interface{}), o.(map[string]interface{}))
 			}
-			// TODO: Test
-			return nil
+			return errors.New("TODO:4")
 		} else {
 			valueType := reflect.TypeOf(value).String()
 			expectedType := typeMapping(t.(string))
@@ -68,7 +64,6 @@ func Check(data []byte, schema []byte) error {
 
 	}
 
-	// FIXME: Empty data + schema = ok. This seems wrong
 	return nil
 }
 
@@ -82,22 +77,20 @@ func validateArray(values []interface{}, schema map[string]interface{}) error {
 				o := schema["format"]
 				if o != nil && reflect.TypeOf(data).String() == "map[string]interface {}" && reflect.TypeOf(o).String() == "map[string]interface {}" {
 					return validateObject(data.(map[string]interface{}), o.(map[string]interface{}))
-				} else {
-					// TODO: test
-					return nil
 				}
-			} else if t.(string) == "array" {
+				return errors.New("TODO: 1")
+			}
+
+			if t.(string) == "array" {
 				o := schema["format"]
 				if o != nil && reflect.TypeOf(data).String() == "[]interface {}" && reflect.TypeOf(o).String() == "map[string]interface {}" {
 					return validateArray(data.([]interface{}), o.(map[string]interface{}))
-				} else {
-					// TODO: test
-					return nil
 				}
-			} else {
-				// TODO: test
-				return nil
+
+				return errors.New("TODO: 2")
 			}
+
+			return errors.New("TODO: 3")
 		}
 	}
 
@@ -110,15 +103,13 @@ func validateObject(data, schema map[string]interface{}) error {
 	for field, value := range data {
 
 		if schema[field] == nil {
-			// TODO: Test
-			return nil
+			return errors.New("TODO:1")
 		}
 
 		s := schema[field]
 		t := s.(map[string]interface{})["type"]
 		if s == nil || t == nil {
-			// TODO: test
-			return nil
+			return errors.New("TODO:2")
 		}
 
 		if t.(string) == "object" {
@@ -126,8 +117,7 @@ func validateObject(data, schema map[string]interface{}) error {
 			if o != nil && reflect.TypeOf(value).String() == "map[string]interface {}" && reflect.TypeOf(o).String() == "map[string]interface {}" {
 				return validateObject(value.(map[string]interface{}), o.(map[string]interface{}))
 			}
-			// TODO: test
-			return nil
+			return errors.New("TODO:3")
 		}
 
 		if t.(string) == "array" {
@@ -135,16 +125,14 @@ func validateObject(data, schema map[string]interface{}) error {
 			if o != nil && reflect.TypeOf(value).String() == "[]interface {}" && reflect.TypeOf(o).String() == "map[string]interface {}" {
 				return validateArray(value.([]interface{}), o.(map[string]interface{}))
 			}
-			// TODO: test
-			return nil
+			return errors.New("TODO:4")
 		}
 
 		if reflect.TypeOf(value).String() != typeMapping(t.(string)) {
-			return errors.New("TODO:ERROR MESSAGE")
+			return errors.New("TODO:5")
 		}
 	}
 
-	// TODO: test
 	return nil
 }
 

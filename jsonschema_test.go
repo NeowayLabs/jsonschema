@@ -11,6 +11,18 @@ func TestFailureOn(t *testing.T) {
 
 	scenarios := []Scenario{
 		Scenario{
+			name: "ExpectFloatButGotInt",
+			data: `{
+				"floatField" : 1
+			}`,
+			schema: `{
+				"floatField" : {
+					"type": "float"
+				}
+			}`,
+			success: true, // FIXME: Should be false, fix float/int validation
+		},
+		Scenario{
 			name:    "EmptySchema",
 			data:    `{"intField": 1}`,
 			schema:  `{}`,
@@ -23,13 +35,42 @@ func TestFailureOn(t *testing.T) {
 			success: false,
 		},
 		Scenario{
-			name: "WrongStringField",
+			name: "WrongobjectField",
 			data: `{
 				"stringField" : 1
 			}`,
 			schema: `{
 				"stringField" : {
 					"type": "string"
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
+			name: "WrongFloatField",
+			data: `{
+				"floatField" : "lala"
+			}`,
+			schema: `{
+				"floatField" : {
+					"type": "float"
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
+			name: "ObjectField",
+			data: `{
+				"objectField": "wrong"
+			}`,
+			schema: `{
+				"objectField": {
+					"type" : "object",
+					"format" : {
+						"stringField" : {
+							"type" : "string"
+						}
+					}
 				}
 			}`,
 			success: false,
@@ -45,18 +86,6 @@ func TestSuccessOn(t *testing.T) {
 
 	scenarios := []Scenario{
 		Scenario{
-			name: "StringField",
-			data: `{
-				"stringField": "name"
-			}`,
-			schema: `{
-				"stringField": {
-					"type" : "string"
-				}
-			}`,
-			success: true,
-		},
-		Scenario{
 			name: "IntField",
 			data: `{
 				"intField": 1
@@ -67,6 +96,25 @@ func TestSuccessOn(t *testing.T) {
 				}
 			}`,
 			success: false, //FIXME: should be true
+		},
+		Scenario{
+			name: "ObjectField",
+			data: `{
+				"objectField": {
+					"stringField" : "name"
+				}
+			}`,
+			schema: `{
+				"objectField": {
+					"type" : "object",
+					"format" : {
+						"stringField" : {
+							"type" : "string"
+						}
+					}
+				}
+			}`,
+			success: true,
 		},
 		Scenario{
 			name: "FloatField",
@@ -86,53 +134,6 @@ func TestSuccessOn(t *testing.T) {
 		testScenario(t, scenario)
 	}
 }
-
-//func TestCheckUsingFieldFloatShouldReturnFalseWhenTypeIsntFloat(t *testing.T) {
-
-//schema := map[string]interface{}{
-//"intField": map[string]interface{}{
-//"type": "float",
-//},
-//}
-
-//data := map[string]interface{}{
-//"intField": "1",
-//}
-
-//expected := false
-//actual := jsonschema.Check(data, schema)
-
-//if actual != expected {
-//t.Error("Test failed. Expected", expected, "but returned", actual)
-//}
-//}
-
-//func TestCheckUsingFieldObjectShouldReturnTrue(t *testing.T) {
-
-//schema := map[string]interface{}{
-//"objectField": map[string]interface{}{
-//"type": "object",
-//"format": map[string]interface{}{
-//"stringField": map[string]interface{}{
-//"type": "string",
-//},
-//},
-//},
-//}
-
-//data := map[string]interface{}{
-//"objectField": map[string]interface{}{
-//"stringField": "field",
-//},
-//}
-
-//expected := true
-//actual := jsonschema.Check(data, schema)
-
-//if actual != expected {
-//t.Error("Test failed. Expected", expected, "but returned", actual)
-//}
-//}
 
 //func TestCheckUsingFieldObjectShouldReturnFalseWhenTypeIsntObject(t *testing.T) {
 
