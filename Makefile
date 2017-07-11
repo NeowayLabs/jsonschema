@@ -1,6 +1,18 @@
-check: 
-	go test -v
+COVERFILE=cover.out
+COVERFILE_HTML=cover.html
 
-release:
-	git tag -a $(version) -m "Generated release "$(version)
-	git push origin $(version)
+check:
+	go test -coverprofile cover.out -race ./...
+
+cover: check
+	go tool cover -html=$(COVERFILE) -o=$(COVERFILE_HTML)
+	xdg-open $(COVERFILE_HTML)
+
+analyze:
+	go vet .
+	staticcheck .
+	gosimple .
+	unused .
+
+devdeps:
+	go get -u honnef.co/go/tools/...

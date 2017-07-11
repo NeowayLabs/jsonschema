@@ -1,133 +1,159 @@
+// Package jsonschema defines all functions required to
+// validate json data according to a schema language
+// that is also represented using JSON.
+//
+// For the full spec of the schema language check the
+// project page: https://github.com/NeowayLabs/jsonschema
 package jsonschema
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"reflect"
 )
 
-func Check(data, schema map[string]interface{}) bool {
+// Check will check the given data according to
+// the provided schema. If the data matches the given schema it
+// will return nil, otherwise an error with details on why
+// the given data does not conform to the provided schema.
+func Check(data []byte, schema []byte) error {
 
-	for field, value := range data {
-		fmt.Println("field:", field, ", Value:", value)
-		fmt.Println("schema:", schema[field])
+	// TODO: accumulate all errors on data instead of returning
+	// the first found error (avoid ping/pong of errors).
 
-		if schema[field] == nil {
-			return false
-		}
+	// TODO: test obligatory fields
 
-		s := schema[field]
-		t := s.(map[string]interface{})["type"]
-		if s == nil || t == nil {
-			return false
-		}
+	parsedData := map[string]interface{}{}
+	parsedSchema := map[string]interface{}{}
 
-		fmt.Println("value type", reflect.TypeOf(value).String())
-		fmt.Println("schema type", t.(string))
-
-		if t.(string) == "object" {
-			o := s.(map[string]interface{})["format"]
-			if o != nil && reflect.TypeOf(value).String() == "map[string]interface {}" && reflect.TypeOf(o).String() == "map[string]interface {}" {
-				if !validateObject(value.(map[string]interface{}), o.(map[string]interface{})) {
-					return false
-				}
-			} else {
-				return false
-			}
-		} else if t.(string) == "array" {
-			o := s.(map[string]interface{})["format"]
-			if o != nil && reflect.TypeOf(value).String() == "[]interface {}" && reflect.TypeOf(o).String() == "map[string]interface {}" {
-				if !validateArray(value.([]interface{}), o.(map[string]interface{})) {
-					return false
-				}
-			} else {
-				return false
-			}
-		} else {
-			if reflect.TypeOf(value).String() != typeMapping(t.(string)) {
-				return false
-			}
-		}
-
+	err := json.Unmarshal(data, &parsedData)
+	if err != nil {
+		return fmt.Errorf("error[%s] parsing non JSON data[%s]", err, string(data))
 	}
 
-	return true
-}
-
-func validateArray(values []interface{}, schema map[string]interface{}) bool {
-
-	fmt.Println("data", values)
-	fmt.Println("schema", schema)
-
-	for _, data := range values {
-		t := schema["type"]
-		if t != nil {
-			fmt.Println("Schema type", t.(string))
-
-			if t.(string) == "object" {
-				o := schema["format"]
-				if o != nil && reflect.TypeOf(data).String() == "map[string]interface {}" && reflect.TypeOf(o).String() == "map[string]interface {}" {
-					return validateObject(data.(map[string]interface{}), o.(map[string]interface{}))
-				} else {
-					return false
-				}
-			} else if t.(string) == "array" {
-				o := schema["format"]
-				if o != nil && reflect.TypeOf(data).String() == "[]interface {}" && reflect.TypeOf(o).String() == "map[string]interface {}" {
-					return validateArray(data.([]interface{}), o.(map[string]interface{}))
-				} else {
-					return false
-				}
-			} else {
-				return false
-			}
-		}
+	err = json.Unmarshal(schema, &parsedSchema)
+	if err != nil {
+		return fmt.Errorf("error[%s] parsing non JSON schema[%s]", err, string(schema))
 	}
 
-	return true
-}
+	if len(parsedData) == 0 {
+		return errors.New("input data is empty")
+	}
 
-func validateObject(data, schema map[string]interface{}) bool {
+	if len(parsedSchema) == 0 {
+		return errors.New("input schema is empty")
+	}
 
-	for field, value := range data {
-
-		fmt.Println("field:", field, ", Value:", value)
-		fmt.Println("schema:", schema[field])
-
-		if schema[field] == nil {
-			return false
+	for field, value := range parsedData {
+		if parsedSchema[field] == nil {
+			return errors.New("TODO:1")
 		}
 
-		s := schema[field]
+		s := parsedSchema[field]
 		t := s.(map[string]interface{})["type"]
 		if s == nil || t == nil {
-			return false
+			return errors.New("TODO:2")
 		}
-
-		fmt.Println("value type", reflect.TypeOf(value).String())
-		fmt.Println("schema type", t.(string))
 
 		if t.(string) == "object" {
 			o := s.(map[string]interface{})["format"]
 			if o != nil && reflect.TypeOf(value).String() == "map[string]interface {}" && reflect.TypeOf(o).String() == "map[string]interface {}" {
 				return validateObject(value.(map[string]interface{}), o.(map[string]interface{}))
-			} else {
-				return false
 			}
+			return errors.New("TODO:3")
 		} else if t.(string) == "array" {
 			o := s.(map[string]interface{})["format"]
 			if o != nil && reflect.TypeOf(value).String() == "[]interface {}" && reflect.TypeOf(o).String() == "map[string]interface {}" {
 				return validateArray(value.([]interface{}), o.(map[string]interface{}))
-			} else {
-				return false
 			}
+			return errors.New("TODO:4")
 		} else {
-			if reflect.TypeOf(value).String() != typeMapping(t.(string)) {
-				return false
+			valueType := reflect.TypeOf(value).String()
+			expectedType := typeMapping(t.(string))
+
+			if valueType != expectedType {
+				return fmt.Errorf(
+					"expected type[%s] got type[%s] value[%s]",
+					expectedType,
+					valueType,
+					value,
+				)
 			}
+		}
+
+	}
+
+	return nil
+}
+
+func validateArray(values []interface{}, schema map[string]interface{}) error {
+
+	for _, data := range values {
+		t := schema["type"]
+		if t != nil {
+
+			if t.(string) == "object" {
+				o := schema["format"]
+				if o != nil && reflect.TypeOf(data).String() == "map[string]interface {}" && reflect.TypeOf(o).String() == "map[string]interface {}" {
+					return validateObject(data.(map[string]interface{}), o.(map[string]interface{}))
+				}
+				return errors.New("TODO: 1")
+			}
+
+			if t.(string) == "array" {
+				o := schema["format"]
+				if o != nil && reflect.TypeOf(data).String() == "[]interface {}" && reflect.TypeOf(o).String() == "map[string]interface {}" {
+					return validateArray(data.([]interface{}), o.(map[string]interface{}))
+				}
+
+				return errors.New("TODO: 2")
+			}
+
+			return errors.New("TODO: 3")
 		}
 	}
 
-	return true
+	// TODO: test
+	return nil
+}
+
+func validateObject(data, schema map[string]interface{}) error {
+
+	for field, value := range data {
+
+		if schema[field] == nil {
+			return errors.New("TODO:1")
+		}
+
+		s := schema[field]
+		t := s.(map[string]interface{})["type"]
+		if s == nil || t == nil {
+			return errors.New("TODO:2")
+		}
+
+		if t.(string) == "object" {
+			o := s.(map[string]interface{})["format"]
+			if o != nil && reflect.TypeOf(value).String() == "map[string]interface {}" && reflect.TypeOf(o).String() == "map[string]interface {}" {
+				return validateObject(value.(map[string]interface{}), o.(map[string]interface{}))
+			}
+			return errors.New("TODO:3")
+		}
+
+		if t.(string) == "array" {
+			o := s.(map[string]interface{})["format"]
+			if o != nil && reflect.TypeOf(value).String() == "[]interface {}" && reflect.TypeOf(o).String() == "map[string]interface {}" {
+				return validateArray(value.([]interface{}), o.(map[string]interface{}))
+			}
+			return errors.New("TODO:4")
+		}
+
+		if reflect.TypeOf(value).String() != typeMapping(t.(string)) {
+			return errors.New("TODO:5")
+		}
+	}
+
+	return nil
 }
 
 func typeMapping(t string) string {

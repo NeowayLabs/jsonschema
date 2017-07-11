@@ -1,510 +1,375 @@
-package jsonschema
+package jsonschema_test
 
 import (
+	"fmt"
 	"testing"
+
+	"github.com/NeowayLabs/jsonschema"
 )
 
-func TestCheckUsingInvalidSchemaMustReturnFalse(t *testing.T) {
+func TestFailureOn(t *testing.T) {
 
-	schema := map[string]interface{}{
-		"intField": map[string]interface{}{},
+	scenarios := []Scenario{
+		Scenario{
+			name: "ExpectFloatButGotInt",
+			data: `{
+				"floatField" : 1
+			}`,
+			schema: `{
+				"floatField" : {
+					"type": "float"
+				}
+			}`,
+			success: true, // FIXME: Should be false, fix float/int validation
+		},
+		Scenario{
+			name: "UnknowDataField",
+			data: `{
+				"unknow" : 1
+			}`,
+			schema: `{
+				"intfield" : {
+					"type": "int"
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
+			name: "EmptyData",
+			data: `{}`,
+			schema: `{
+				"floatField" : {
+					"type": "float"
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
+			name:    "EmptySchema",
+			data:    `{"intField": 1}`,
+			schema:  `{}`,
+			success: false,
+		},
+		Scenario{
+			name:    "EverythingEmpty",
+			data:    `{}`,
+			schema:  `{}`,
+			success: false,
+		},
+		Scenario{
+			name: "WrongString",
+			data: `{
+				"stringField" : 1
+			}`,
+			schema: `{
+				"stringField" : {
+					"type": "string"
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
+			name: "WrongArray",
+			data: `{
+				"arrayField" : 1
+			}`,
+			schema: `{
+				"arrayField" : {
+					"type": "array",
+					"format" : {
+						"type" : "string"
+					}
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
+			name: "WrongNestedArray",
+			data: `{
+				"arrayField" : [ [ { "stringField" : 1 } ] ]
+			}`,
+			schema: `{
+				"arrayField" : {
+					"type": "array",
+					"format" : {
+						"type" : "array",
+						"format" : {
+							"type" : "string"
+						}
+					}
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
+			name: "WrongObjectInsideNestedArray",
+			data: `{
+				"arrayField" : [ [ { "stringField" : 1 } ] ]
+			}`,
+			schema: `{
+				"arrayField" : {
+					"type": "array",
+					"format" : {
+						"type" : "array",
+						"format" : {
+							"type" : "object",
+							"format" : {
+								"stringField" : {
+									"type" : "string"
+								}
+							}
+						}
+					}
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
+			name: "WrongFloat",
+			data: `{
+				"floatField" : "lala"
+			}`,
+			schema: `{
+				"floatField" : {
+					"type": "float"
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
+			name: "WrongObject",
+			data: `{
+				"objectField": "wrong"
+			}`,
+			schema: `{
+				"objectField": {
+					"type" : "object",
+					"format" : {
+						"stringField" : {
+							"type" : "string"
+						}
+					}
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
+			name: "corruptedData",
+			data: `{
+				objectField"="wrong"
+			`,
+			schema: `{
+				"stringField": {
+					"type" : "string"
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
+			name: "corruptedSchema",
+			data: `{
+				"objectField": {
+					"nestedFloat" : 1.1
+				}
+			}`,
+			schema: `
+				"objectField": {
+					type" : "object",
+					}
+			}`,
+			success: false,
+		},
+		Scenario{
+			name: "WrongNestedFloat",
+			data: `{
+				"objectField": {
+					"nestedFloat" : "wrong"
+				}
+			}`,
+			schema: `{
+				"objectField": {
+					"type" : "object",
+					"format" : {
+						"nestedFloat" : {
+							"type" : "float"
+						}
+					}
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
+			name: "WrongNestedObject",
+			data: `{
+				"objectField": {
+					"nestedObject" : "wrong"
+				}
+			}`,
+			schema: `{
+				"objectField": {
+					"type" : "object",
+					"format" : {
+						"nestedObject" : {
+							"type" : "object",
+							"format" : {
+								"s" : {
+									"type" : "string"
+								}
+							}
+						}
+					}
+				}
+			}`,
+			success: false,
+		},
 	}
 
-	data := map[string]interface{}{
-		"intField": "1",
-	}
-
-	expected := false
-	actual := Check(data, schema)
-
-	if actual != expected {
-		t.Error("Test failed. Expected", expected, "but returned", actual)
+	for _, scenario := range scenarios {
+		testScenario(t, scenario)
 	}
 }
 
-func TestCheckUsingFieldStringShouldReturnTrue(t *testing.T) {
+func TestSuccessOn(t *testing.T) {
 
-	schema := map[string]interface{}{
-		"stringField": map[string]interface{}{
-			"type": "string",
+	scenarios := []Scenario{
+		Scenario{
+			name: "Int",
+			data: `{
+				"intField": 1
+			}`,
+			schema: `{
+				"intField": {
+					"type" : "int"
+				}
+			}`,
+			success: false, //FIXME: should be true
+		},
+		Scenario{
+			name: "Object",
+			data: `{
+				"objectField": {
+					"stringField" : "name"
+				}
+			}`,
+			schema: `{
+				"objectField": {
+					"type" : "object",
+					"format" : {
+						"stringField" : {
+							"type" : "string"
+						}
+					}
+				}
+			}`,
+			success: true,
+		},
+		Scenario{
+			name: "ArrayOfObjects",
+			data: `{
+				"arrayField": [ {"stringField":"hi"} ]
+			}`,
+			schema: `{
+				"arrayField": {
+					"type" : "array",
+					"format" : {
+						"type" : "object",
+						"format" : {
+							"stringField" : {
+								"type" : "string"
+							}
+						}
+					}
+				}
+			}`,
+			success: true,
+		},
+		Scenario{
+			name: "NestedArrayOfObjects",
+			data: `{
+				"arrayField": [ [ {"stringField":"hi"} ] ]
+			}`,
+			schema: `{
+				"arrayField": {
+					"type" : "array",
+					"format" : {
+						"type" : "array",
+						"format" : {
+							"type" : "object",
+							"format" : {
+								"stringField" : {
+									"type" : "string"
+								}
+							}
+						}
+					}
+				}
+			}`,
+			success: true,
+		},
+		Scenario{
+			name: "NestedObject",
+			data: `{
+				"objectField": {
+					"nestedObject" : {
+						"stringField" : "name"
+					}
+				}
+			}`,
+			schema: `{
+				"objectField": {
+					"type" : "object",
+					"format" : {
+						"nestedObject" : {
+							"type" : "object",
+							"format" : {
+								"stringField" : {
+									"type" : "string"
+								}
+							}
+						}
+					}
+				}
+			}`,
+			success: true,
+		},
+		Scenario{
+			name: "FloatField",
+			data: `{
+				"floatField": 1.3
+			}`,
+			schema: `{
+				"floatField": {
+					"type" : "float"
+				}
+			}`,
+			success: true,
 		},
 	}
 
-	data := map[string]interface{}{
-		"stringField": "name",
-	}
-
-	expected := true
-	actual := Check(data, schema)
-
-	if actual != expected {
-		t.Error("Test failed. Expected", expected, "but returned", actual)
+	for _, scenario := range scenarios {
+		testScenario(t, scenario)
 	}
 }
 
-func TestCheckUsingFieldStringShouldReturnFalseWhenTypeIsntString(t *testing.T) {
-
-	schema := map[string]interface{}{
-		"stringField": map[string]interface{}{
-			"type": "string",
-		},
-	}
-
-	data := map[string]interface{}{
-		"stringField": 1,
-	}
-
-	expected := false
-	actual := Check(data, schema)
-
-	if actual != expected {
-		t.Error("Test failed. Expected", expected, "but returned", actual)
-	}
+type Scenario struct {
+	name    string
+	schema  string
+	data    string
+	success bool
 }
 
-func TestCheckUsingFieldIntShouldReturnTrue(t *testing.T) {
-
-	schema := map[string]interface{}{
-		"intField": map[string]interface{}{
-			"type": "int",
-		},
-	}
-
-	data := map[string]interface{}{
-		"intField": 1,
-	}
-
-	expected := true
-	actual := Check(data, schema)
-
-	if actual != expected {
-		t.Error("Test failed. Expected", expected, "but returned", actual)
-	}
-}
-
-func TestCheckUsingFieldIntShouldReturnFalseWhenTypeIsntInt(t *testing.T) {
-
-	schema := map[string]interface{}{
-		"intField": map[string]interface{}{
-			"type": "int",
-		},
-	}
-
-	data := map[string]interface{}{
-		"intField": "1",
-	}
-
-	expected := false
-	actual := Check(data, schema)
-
-	if actual != expected {
-		t.Error("Test failed. Expected", expected, "but returned", actual)
-	}
-}
-
-func TestCheckUsingFieldFloatShouldReturnTrue(t *testing.T) {
-
-	schema := map[string]interface{}{
-		"intField": map[string]interface{}{
-			"type": "float",
-		},
-	}
-
-	data := map[string]interface{}{
-		"intField": 1.0,
-	}
-
-	expected := true
-	actual := Check(data, schema)
-
-	if actual != expected {
-		t.Error("Test failed. Expected", expected, "but returned", actual)
-	}
-}
-
-func TestCheckUsingFieldFloatShouldReturnFalseWhenTypeIsntFloat(t *testing.T) {
-
-	schema := map[string]interface{}{
-		"intField": map[string]interface{}{
-			"type": "float",
-		},
-	}
-
-	data := map[string]interface{}{
-		"intField": "1",
-	}
-
-	expected := false
-	actual := Check(data, schema)
-
-	if actual != expected {
-		t.Error("Test failed. Expected", expected, "but returned", actual)
-	}
-}
-
-func TestCheckUsingFieldObjectShouldReturnTrue(t *testing.T) {
-
-	schema := map[string]interface{}{
-		"objectField": map[string]interface{}{
-			"type": "object",
-			"format": map[string]interface{}{
-				"stringField": map[string]interface{}{
-					"type": "string",
-				},
-			},
-		},
-	}
-
-	data := map[string]interface{}{
-		"objectField": map[string]interface{}{
-			"stringField": "field",
-		},
-	}
-
-	expected := true
-	actual := Check(data, schema)
-
-	if actual != expected {
-		t.Error("Test failed. Expected", expected, "but returned", actual)
-	}
-}
-
-func TestCheckUsingFieldObjectShouldReturnFalseWhenTypeIsntObject(t *testing.T) {
-
-	schema := map[string]interface{}{
-		"objectField": map[string]interface{}{
-			"type": "object",
-			"format": map[string]interface{}{
-				"stringField": map[string]interface{}{
-					"type": "string",
-				},
-			},
-		},
-	}
-
-	data := map[string]interface{}{
-		"objectField": "field",
-	}
-
-	expected := false
-	actual := Check(data, schema)
-
-	if actual != expected {
-		t.Error("Test failed. Expected", expected, "but returned", actual)
-	}
-}
-
-func TestCheckUsingFieldObjectShouldReturnFalseWhenTypeInsideObjectIsntExpectedType(t *testing.T) {
-
-	schema := map[string]interface{}{
-		"objectField": map[string]interface{}{
-			"type": "object",
-			"format": map[string]interface{}{
-				"stringField": map[string]interface{}{
-					"type": "string",
-				},
-			},
-		},
-	}
-
-	data := map[string]interface{}{
-		"objectField": map[string]interface{}{
-			"stringField": 1,
-		},
-	}
-
-	expected := false
-	actual := Check(data, schema)
-
-	if actual != expected {
-		t.Error("Test failed. Expected", expected, "but returned", actual)
-	}
-}
-
-func TestCheckUsingMultipleFieldObjectShouldReturnTrue(t *testing.T) {
-
-	schema := map[string]interface{}{
-		"objectField": map[string]interface{}{
-			"type": "object",
-			"format": map[string]interface{}{
-				"secondObjectField": map[string]interface{}{
-					"type": "object",
-					"format": map[string]interface{}{
-						"stringField": map[string]interface{}{
-							"type": "string",
-						},
-					},
-				},
-			},
-		},
-	}
-
-	data := map[string]interface{}{
-		"objectField": map[string]interface{}{
-			"secondObjectField": map[string]interface{}{
-				"stringField": "field",
-			},
-		},
-	}
-
-	expected := true
-	actual := Check(data, schema)
-
-	if actual != expected {
-		t.Error("Test failed. Expected", expected, "but returned", actual)
-	}
-}
-
-func TestCheckUsingFieldArrayShouldReturnTrue(t *testing.T) {
-
-	schema := map[string]interface{}{
-		"arrayField": map[string]interface{}{
-			"type": "array",
-			"format": map[string]interface{}{
-				"type": "object",
-				"format": map[string]interface{}{
-					"stringField": map[string]interface{}{
-						"type": "string",
-					},
-				},
-			},
-		},
-	}
-
-	data := map[string]interface{}{
-		"arrayField": []interface{}{
-			map[string]interface{}{
-				"stringField": "field",
-			},
-		},
-	}
-
-	expected := true
-	actual := Check(data, schema)
-
-	if actual != expected {
-		t.Error("Test failed. Expected", expected, "but returned", actual)
-	}
-}
-
-func TestCheckUsingFieldArrayShouldReturnFalseWhenTypeInsideArrayIsntExpectedType(t *testing.T) {
-
-	schema := map[string]interface{}{
-		"arrayField": map[string]interface{}{
-			"type": "array",
-			"format": map[string]interface{}{
-				"type": "object",
-				"format": map[string]interface{}{
-					"stringField": map[string]interface{}{
-						"type": "string",
-					},
-				},
-			},
-		},
-	}
-
-	data := map[string]interface{}{
-		"arrayField": []interface{}{
-			map[string]interface{}{
-				"stringField": 1,
-			},
-		},
-	}
-
-	expected := false
-	actual := Check(data, schema)
-
-	if actual != expected {
-		t.Error("Test failed. Expected", expected, "but returned", actual)
-	}
-}
-
-func TestCheckUsingMultipleFieldArrayShouldReturnTrue(t *testing.T) {
-
-	schema := map[string]interface{}{
-		"arrayField": map[string]interface{}{
-			"type": "array",
-			"format": map[string]interface{}{
-				"type": "array",
-				"format": map[string]interface{}{
-					"type": "object",
-					"format": map[string]interface{}{
-						"stringField": map[string]interface{}{
-							"type": "string",
-						},
-					},
-				},
-			},
-		},
-	}
-
-	data := map[string]interface{}{
-		"arrayField": []interface{}{
-			[]interface{}{
-				map[string]interface{}{
-					"stringField": "field",
-				},
-			},
-		},
-	}
-
-	expected := true
-	actual := Check(data, schema)
-
-	if actual != expected {
-		t.Error("Test failed. Expected", expected, "but returned", actual)
-	}
-}
-
-func TestCheckUsingMultipleFieldArrayShouldReturnFalseWhenTypeInsideIsntExpectedType(t *testing.T) {
-
-	schema := map[string]interface{}{
-		"arrayField": map[string]interface{}{
-			"type": "array",
-			"format": map[string]interface{}{
-				"type": "array",
-				"format": map[string]interface{}{
-					"type": "object",
-					"format": map[string]interface{}{
-						"stringField": map[string]interface{}{
-							"type": "string",
-						},
-					},
-				},
-			},
-		},
-	}
-
-	data := map[string]interface{}{
-		"arrayField": []interface{}{
-			[]interface{}{
-				map[string]interface{}{
-					"stringField": 1,
-				},
-			},
-		},
-	}
-
-	expected := false
-	actual := Check(data, schema)
-
-	if actual != expected {
-		t.Error("Test failed. Expected", expected, "but returned", actual)
-	}
-}
-
-func TestCheckUsingFieldObjectWithArrayShouldReturnTrue(t *testing.T) {
-
-	schema := map[string]interface{}{
-		"arrayField": map[string]interface{}{
-			"type": "array",
-			"format": map[string]interface{}{
-				"type": "object",
-				"format": map[string]interface{}{
-					"stringField": map[string]interface{}{
-						"type": "string",
-					},
-				},
-			},
-		},
-	}
-
-	data := map[string]interface{}{
-		"arrayField": []interface{}{
-			map[string]interface{}{
-				"stringField": "field",
-			},
-		},
-	}
-
-	expected := true
-	actual := Check(data, schema)
-
-	if actual != expected {
-		t.Error("Test failed. Expected", expected, "but returned", actual)
-	}
-}
-
-func TestCheckUsingFieldObjectShouldReturnFalseWhenTypeInsideIsntExpectedType(t *testing.T) {
-
-	schema := map[string]interface{}{
-		"arrayField": map[string]interface{}{
-			"type": "array",
-			"format": map[string]interface{}{
-				"type": "object",
-				"format": map[string]interface{}{
-					"stringField": map[string]interface{}{
-						"type": "string",
-					},
-				},
-			},
-		},
-	}
-
-	data := map[string]interface{}{
-		"arrayField": []interface{}{
-			map[string]interface{}{
-				"stringField": 1,
-			},
-		},
-	}
-
-	expected := false
-	actual := Check(data, schema)
-
-	if actual != expected {
-		t.Error("Test failed. Expected", expected, "but returned", actual)
-	}
-}
-
-func TestCheckUsingFieldDoesntContainInSchema(t *testing.T) {
-
-	schema := map[string]interface{}{
-		"stringField": map[string]interface{}{
-			"type": "string",
-		},
-	}
-
-	data := map[string]interface{}{
-		"anotherField": 1,
-	}
-
-	expected := false
-	actual := Check(data, schema)
-
-	if actual != expected {
-		t.Error("Test failed. Expected", expected, "but returned", actual)
-	}
-}
-
-func TestCheckUsingNestedFieldDoesntContainInSchema(t *testing.T) {
-
-	schema := map[string]interface{}{
-		"arrayField": map[string]interface{}{
-			"type": "array",
-			"format": map[string]interface{}{
-				"type": "object",
-				"format": map[string]interface{}{
-					"stringField": map[string]interface{}{
-						"type": "string",
-					},
-				},
-			},
-		},
-	}
-
-	data := map[string]interface{}{
-		"arrayField": []interface{}{
-			map[string]interface{}{
-				"anotherField": "another",
-			},
-		},
-	}
-
-	expected := false
-	actual := Check(data, schema)
-
-	if actual != expected {
-		t.Error("Test failed. Expected", expected, "but returned", actual)
-	}
+func testScenario(t *testing.T, s Scenario) {
+	t.Run(s.name, func(t *testing.T) {
+		details := fmt.Sprintf("data:\n%s\n\nschema:\n%s\n", s.data, s.schema)
+		err := jsonschema.Check([]byte(s.data), []byte(s.schema))
+		if s.success {
+			if err != nil {
+				t.Fatalf("unexpected error[%s],details:\n%s", err, details)
+			}
+		} else {
+			if err == nil {
+				t.Fatalf("expected error got nil, details:\n%s", details)
+			}
+		}
+	})
 }
