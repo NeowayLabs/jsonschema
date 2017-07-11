@@ -126,6 +126,18 @@ func TestFailureOn(t *testing.T) {
 			success: false,
 		},
 		Scenario{
+			name: "UnknowFieldType",
+			data: `{
+				"data" : 1
+			}`,
+			schema: `{
+				"data" : {
+					"type": "unknown"
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
 			name: "EmptyData",
 			data: `{}`,
 			schema: `{
