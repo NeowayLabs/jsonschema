@@ -56,7 +56,7 @@ type typeDescriptor struct {
 type typechecker func(rawdata interface{}, rawformat interface{}) error
 
 func checkObject(rawdata interface{}, rawformat interface{}) error {
-	// handle rawdata is not object
+
 	data, ok := rawdata.(map[string]interface{})
 	if !ok {
 		return fmt.Errorf("expected data to be an 'object', it is: %q", reflect.TypeOf(rawdata))
@@ -87,13 +87,16 @@ func checkString(rawdata interface{}, format interface{}) error {
 
 	_, ok := rawdata.(string)
 	if !ok {
-		return fmt.Errorf("expected string, got [%s]", rawdata)
+		return fmt.Errorf("expected string, got [%s]", reflect.TypeOf(rawdata))
 	}
 	return nil
 }
 
 func checkFloat(rawdata interface{}, format interface{}) error {
-	// TODO
+	_, ok := rawdata.(float64)
+	if !ok {
+		return fmt.Errorf("expected float, got [%s]", reflect.TypeOf(rawdata))
+	}
 	return nil
 }
 

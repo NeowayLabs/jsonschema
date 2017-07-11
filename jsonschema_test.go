@@ -134,7 +134,7 @@ func TestFailureOn(t *testing.T) {
 					"type": "float"
 				}
 			}`,
-			success: true, // TODO
+			success: false,
 		},
 		Scenario{
 			name: "WrongObject",
@@ -173,9 +173,9 @@ func TestFailureOn(t *testing.T) {
 				}
 			}`,
 			schema: `
-				"objectField": {
+				"objectField: {
 					type" : "object",
-					}
+				}
 			}`,
 			success: false,
 		},
@@ -196,7 +196,7 @@ func TestFailureOn(t *testing.T) {
 					}
 				}
 			}`,
-			success: true, // TODO
+			success: false,
 		},
 		Scenario{
 			name: "WrongNestedObject",
