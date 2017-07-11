@@ -53,8 +53,7 @@ func Check(data []byte, schema []byte) error {
 			return nil
 		} else {
 			if reflect.TypeOf(value).String() != typeMapping(t.(string)) {
-				// TODO: Test
-				return nil
+				return errors.New("TODO: Improve error message")
 			}
 		}
 
@@ -132,8 +131,7 @@ func validateObject(data, schema map[string]interface{}) error {
 		}
 
 		if reflect.TypeOf(value).String() != typeMapping(t.(string)) {
-			// TODO: test
-			return nil
+			return errors.New("TODO:ERROR MESSAGE")
 		}
 	}
 

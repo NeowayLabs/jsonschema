@@ -22,18 +22,18 @@ func TestFailureOn(t *testing.T) {
 			schema:  `{}`,
 			success: false,
 		},
-		//Scenario{
-		//name: "WrongStringField",
-		//data: `{
-		//"stringField" : 1
-		//}`,
-		//schema: `{
-		//"stringField" : {
-		//"type": "string"
-		//}
-		//}`,
-		//success: false,
-		//},
+		Scenario{
+			name: "WrongStringField",
+			data: `{
+				"stringField" : 1
+			}`,
+			schema: `{
+				"stringField" : {
+					"type": "string"
+				}
+			}`,
+			success: false,
+		},
 	}
 
 	for _, scenario := range scenarios {
