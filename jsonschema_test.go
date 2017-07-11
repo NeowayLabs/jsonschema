@@ -281,6 +281,36 @@ func TestSuccessArray(t *testing.T) {
 			success: true,
 		},
 		Scenario{
+			name: "OfOneFloat",
+			data: `{
+				"arrayField": [ 3.33 ]
+			}`,
+			schema: `{
+				"arrayField": {
+					"type" : "array",
+					"format" : {
+						"type" : "float"
+					}
+				}
+			}`,
+			success: true,
+		},
+		Scenario{
+			name: "OfMultipleFloats",
+			data: `{
+				"arrayField": [ 1.11, 2.21, 6.66 ]
+			}`,
+			schema: `{
+				"arrayField": {
+					"type" : "array",
+					"format" : {
+						"type" : "float"
+					}
+				}
+			}`,
+			success: true,
+		},
+		Scenario{
 			name: "NestedWithObjects",
 			data: `{
 				"arrayField": [ [ {"stringField":"hi"} ] ]
