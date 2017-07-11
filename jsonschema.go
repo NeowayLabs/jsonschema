@@ -1,3 +1,9 @@
+// Package jsonschema defines all functions required to
+// validate json data according to a schema language
+// that is also represented using JSON.
+//
+// For the full spec of the schema language check the
+// project page: https://github.com/NeowayLabs/jsonschema
 package jsonschema
 
 import (
@@ -7,8 +13,14 @@ import (
 	"reflect"
 )
 
+// Check will check the given data according to
+// the provided schema. If the data matches the given schema it
+// will return nil, otherwise an error with details on why
+// the given data does not conform to the provided schema.
 func Check(data []byte, schema []byte) error {
 
+	// TODO: accumulate all errors on data instead of returning
+	// the first found error (avoid ping/pong of errors).
 	parsedData := map[string]interface{}{}
 	parsedSchema := map[string]interface{}{}
 
