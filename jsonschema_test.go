@@ -186,6 +186,26 @@ func TestSuccessOn(t *testing.T) {
 			success: true,
 		},
 		Scenario{
+			name: "ArrayOfObjectsField",
+			data: `{
+				"arrayField": [ {"stringField":"hi"} ]
+			}`,
+			schema: `{
+				"arrayField": {
+					"type" : "array",
+					"format" : {
+						"type" : "object",
+						"format" : {
+							"stringField" : {
+								"type" : "string"
+							}
+						}
+					}
+				}
+			}`,
+			success: true,
+		},
+		Scenario{
 			name: "NestedObject",
 			data: `{
 				"objectField": {
@@ -229,38 +249,6 @@ func TestSuccessOn(t *testing.T) {
 		testScenario(t, scenario)
 	}
 }
-
-//func TestCheckUsingFieldArrayShouldReturnTrue(t *testing.T) {
-
-//schema := map[string]interface{}{
-//"arrayField": map[string]interface{}{
-//"type": "array",
-//"format": map[string]interface{}{
-//"type": "object",
-//"format": map[string]interface{}{
-//"stringField": map[string]interface{}{
-//"type": "string",
-//},
-//},
-//},
-//},
-//}
-
-//data := map[string]interface{}{
-//"arrayField": []interface{}{
-//map[string]interface{}{
-//"stringField": "field",
-//},
-//},
-//}
-
-//expected := true
-//actual := jsonschema.Check(data, schema)
-
-//if actual != expected {
-//t.Error("Test failed. Expected", expected, "but returned", actual)
-//}
-//}
 
 //func TestCheckUsingFieldArrayShouldReturnFalseWhenTypeInsideArrayIsntExpectedType(t *testing.T) {
 
