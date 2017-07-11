@@ -24,10 +24,15 @@ func Check(data []byte, schema []byte) error {
 	parsedData := map[string]interface{}{}
 	parsedSchema := map[string]interface{}{}
 
-	// TODO: check invalid data
-	json.Unmarshal(data, &parsedData)
-	// TODO: check invalid schema
-	json.Unmarshal(schema, &parsedSchema)
+	err := json.Unmarshal(data, &parsedData)
+	if err != nil {
+		return fmt.Errorf("error[%s] parsing non JSON data[%s]", err, string(data))
+	}
+
+	err = json.Unmarshal(schema, &parsedSchema)
+	if err != nil {
+		return fmt.Errorf("error[%s] parsing non JSON schema[%s]", err, string(schema))
+	}
 
 	if len(parsedData) == 0 {
 		return errors.New("input data is empty")

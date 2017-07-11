@@ -76,6 +76,32 @@ func TestFailureOn(t *testing.T) {
 			success: false,
 		},
 		Scenario{
+			name: "corruptedData",
+			data: `{
+				objectField"="wrong"
+			`,
+			schema: `{
+				"stringField": {
+					"type" : "string"
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
+			name: "corruptedSchema",
+			data: `{
+				"objectField": {
+					"nestedFloat" : 1.1
+				}
+			}`,
+			schema: `
+				"objectField": {
+					type" : "object",
+					}
+			}`,
+			success: false,
+		},
+		Scenario{
 			name: "WrongNestedFloat",
 			data: `{
 				"objectField": {
