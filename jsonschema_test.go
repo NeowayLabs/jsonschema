@@ -47,6 +47,21 @@ func TestFailureOn(t *testing.T) {
 			success: false,
 		},
 		Scenario{
+			name: "WrongArrayField",
+			data: `{
+				"arrayField" : 1
+			}`,
+			schema: `{
+				"arrayField" : {
+					"type": "array",
+					"format" : {
+						"type" : "string"
+					}
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
 			name: "WrongFloatField",
 			data: `{
 				"floatField" : "lala"
@@ -249,38 +264,6 @@ func TestSuccessOn(t *testing.T) {
 		testScenario(t, scenario)
 	}
 }
-
-//func TestCheckUsingFieldArrayShouldReturnFalseWhenTypeInsideArrayIsntExpectedType(t *testing.T) {
-
-//schema := map[string]interface{}{
-//"arrayField": map[string]interface{}{
-//"type": "array",
-//"format": map[string]interface{}{
-//"type": "object",
-//"format": map[string]interface{}{
-//"stringField": map[string]interface{}{
-//"type": "string",
-//},
-//},
-//},
-//},
-//}
-
-//data := map[string]interface{}{
-//"arrayField": []interface{}{
-//map[string]interface{}{
-//"stringField": 1,
-//},
-//},
-//}
-
-//expected := false
-//actual := jsonschema.Check(data, schema)
-
-//if actual != expected {
-//t.Error("Test failed. Expected", expected, "but returned", actual)
-//}
-//}
 
 //func TestCheckUsingMultipleFieldArrayShouldReturnTrue(t *testing.T) {
 
