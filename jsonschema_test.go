@@ -22,6 +22,18 @@ func TestFailureOn(t *testing.T) {
 			schema:  `{}`,
 			success: false,
 		},
+		//Scenario{
+		//name: "WrongStringField",
+		//data: `{
+		//"stringField" : 1
+		//}`,
+		//schema: `{
+		//"stringField" : {
+		//"type": "string"
+		//}
+		//}`,
+		//success: false,
+		//},
 	}
 
 	for _, scenario := range scenarios {
@@ -50,26 +62,6 @@ func TestSuccessOn(t *testing.T) {
 		testScenario(t, scenario)
 	}
 }
-
-//func TestCheckUsingFieldStringShouldReturnFalseWhenTypeIsntString(t *testing.T) {
-
-//schema := map[string]interface{}{
-//"stringField": map[string]interface{}{
-//"type": "string",
-//},
-//}
-
-//data := map[string]interface{}{
-//"stringField": 1,
-//}
-
-//expected := false
-//actual := jsonschema.Check(data, schema)
-
-//if actual != expected {
-//t.Error("Test failed. Expected", expected, "but returned", actual)
-//}
-//}
 
 //func TestCheckUsingFieldIntShouldReturnTrue(t *testing.T) {
 
