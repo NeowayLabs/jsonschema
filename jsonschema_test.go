@@ -7,6 +7,97 @@ import (
 	"github.com/NeowayLabs/jsonschema"
 )
 
+func TestFailureArray(t *testing.T) {
+	testScenarios(t, []Scenario{
+		Scenario{
+			name: "WrongType",
+			data: `{
+				"arrayField" : 1
+			}`,
+			schema: `{
+				"arrayField" : {
+					"type": "array",
+					"format" : {
+						"type" : "string"
+					}
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
+			name: "FirstValueHasWrongType",
+			data: `{
+				"arrayField" : [ 1, "hi" ]
+			}`,
+			schema: `{
+				"arrayField" : {
+					"type": "array",
+					"format" : {
+						"type" : "string"
+					}
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
+			name: "SecondValueHasWrongType",
+			data: `{
+				"arrayField" : [ "hi", { "wrong" : 1 } ]
+			}`,
+			schema: `{
+				"arrayField" : {
+					"type": "array",
+					"format" : {
+						"type" : "string"
+					}
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
+			name: "WrongTypeOnNestedArray",
+			data: `{
+				"arrayField" : [ [ { "stringField" : 1 } ] ]
+			}`,
+			schema: `{
+				"arrayField" : {
+					"type": "array",
+					"format" : {
+						"type" : "array",
+						"format" : {
+							"type" : "string"
+						}
+					}
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
+			name: "WrongObjectInsideNestedArray",
+			data: `{
+				"arrayField" : [ [ { "stringField" : 1 } ] ]
+			}`,
+			schema: `{
+				"arrayField" : {
+					"type": "array",
+					"format" : {
+						"type" : "array",
+						"format" : {
+							"type" : "object",
+							"format" : {
+								"stringField" : {
+									"type" : "string"
+								}
+							}
+						}
+					}
+				}
+			}`,
+			success: false,
+		},
+	})
+}
+
 func TestFailureOn(t *testing.T) {
 
 	scenarios := []Scenario{
@@ -64,62 +155,6 @@ func TestFailureOn(t *testing.T) {
 			schema: `{
 				"stringField" : {
 					"type": "string"
-				}
-			}`,
-			success: false,
-		},
-		Scenario{
-			name: "WrongArray",
-			data: `{
-				"arrayField" : 1
-			}`,
-			schema: `{
-				"arrayField" : {
-					"type": "array",
-					"format" : {
-						"type" : "string"
-					}
-				}
-			}`,
-			success: false,
-		},
-		Scenario{
-			name: "WrongNestedArray",
-			data: `{
-				"arrayField" : [ [ { "stringField" : 1 } ] ]
-			}`,
-			schema: `{
-				"arrayField" : {
-					"type": "array",
-					"format" : {
-						"type" : "array",
-						"format" : {
-							"type" : "string"
-						}
-					}
-				}
-			}`,
-			success: false,
-		},
-		Scenario{
-			name: "WrongObjectInsideNestedArray",
-			data: `{
-				"arrayField" : [ [ { "stringField" : 1 } ] ]
-			}`,
-			schema: `{
-				"arrayField" : {
-					"type": "array",
-					"format" : {
-						"type" : "array",
-						"format" : {
-							"type" : "object",
-							"format" : {
-								"stringField" : {
-									"type" : "string"
-								}
-							}
-						}
-					}
 				}
 			}`,
 			success: false,
