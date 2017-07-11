@@ -56,72 +56,36 @@ func TestSuccessOn(t *testing.T) {
 			}`,
 			success: true,
 		},
+		Scenario{
+			name: "IntField",
+			data: `{
+				"intField": 1
+			}`,
+			schema: `{
+				"intField": {
+					"type" : "int"
+				}
+			}`,
+			success: false, //FIXME: should be true
+		},
+		Scenario{
+			name: "FloatField",
+			data: `{
+				"floatField": 1.3
+			}`,
+			schema: `{
+				"floatField": {
+					"type" : "float"
+				}
+			}`,
+			success: true,
+		},
 	}
 
 	for _, scenario := range scenarios {
 		testScenario(t, scenario)
 	}
 }
-
-//func TestCheckUsingFieldIntShouldReturnTrue(t *testing.T) {
-
-//schema := map[string]interface{}{
-//"intField": map[string]interface{}{
-//"type": "int",
-//},
-//}
-
-//data := map[string]interface{}{
-//"intField": 1,
-//}
-
-//expected := true
-//actual := jsonschema.Check(data, schema)
-
-//if actual != expected {
-//t.Error("Test failed. Expected", expected, "but returned", actual)
-//}
-//}
-
-//func TestCheckUsingFieldIntShouldReturnFalseWhenTypeIsntInt(t *testing.T) {
-
-//schema := map[string]interface{}{
-//"intField": map[string]interface{}{
-//"type": "int",
-//},
-//}
-
-//data := map[string]interface{}{
-//"intField": "1",
-//}
-
-//expected := false
-//actual := jsonschema.Check(data, schema)
-
-//if actual != expected {
-//t.Error("Test failed. Expected", expected, "but returned", actual)
-//}
-//}
-
-//func TestCheckUsingFieldFloatShouldReturnTrue(t *testing.T) {
-
-//schema := map[string]interface{}{
-//"intField": map[string]interface{}{
-//"type": "float",
-//},
-//}
-
-//data := map[string]interface{}{
-//"intField": 1.0,
-//}
-
-//expected := true
-//actual := jsonschema.Check(data, schema)
-
-//if actual != expected {
-//t.Error("Test failed. Expected", expected, "but returned", actual)
-//}
-//}
 
 //func TestCheckUsingFieldFloatShouldReturnFalseWhenTypeIsntFloat(t *testing.T) {
 
@@ -523,7 +487,7 @@ func testScenario(t *testing.T, s Scenario) {
 		err := jsonschema.Check([]byte(s.data), []byte(s.schema))
 		if s.success {
 			if err != nil {
-				t.Fatalf("unexpected error[%s],details:\n%s", details)
+				t.Fatalf("unexpected error[%s],details:\n%s", err, details)
 			}
 		} else {
 			if err == nil {

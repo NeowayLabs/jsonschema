@@ -3,6 +3,7 @@ package jsonschema
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"reflect"
 )
 
@@ -52,8 +53,16 @@ func Check(data []byte, schema []byte) error {
 			// TODO: Test
 			return nil
 		} else {
-			if reflect.TypeOf(value).String() != typeMapping(t.(string)) {
-				return errors.New("TODO: Improve error message")
+			valueType := reflect.TypeOf(value).String()
+			expectedType := typeMapping(t.(string))
+
+			if valueType != expectedType {
+				return fmt.Errorf(
+					"expected type[%s] got type[%s] value[%s]",
+					expectedType,
+					valueType,
+					value,
+				)
 			}
 		}
 
