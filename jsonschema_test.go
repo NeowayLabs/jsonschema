@@ -32,7 +32,7 @@ func TestFailureOn(t *testing.T) {
 					"type": "int"
 				}
 			}`,
-			success: true, //TODO
+			success: false,
 		},
 		Scenario{
 			name: "EmptyData",
@@ -151,7 +151,7 @@ func TestFailureOn(t *testing.T) {
 					}
 				}
 			}`,
-			success: true, //TODO
+			success: false,
 		},
 		Scenario{
 			name: "corruptedData",
@@ -220,7 +220,7 @@ func TestFailureOn(t *testing.T) {
 					}
 				}
 			}`,
-			success: true, // TODO
+			success: false,
 		},
 	}
 

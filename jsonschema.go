@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"reflect"
 )
 
 // Check will check the given data according to
@@ -56,32 +57,81 @@ type typechecker func(rawdata interface{}, rawformat interface{}) error
 
 func checkObject(rawdata interface{}, rawformat interface{}) error {
 	// handle rawdata is not object
-	data := rawdata.(map[string]interface{})
+	data, ok := rawdata.(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("expected data to be an 'object', it is: %q", reflect.TypeOf(rawdata))
+	}
 	// handle rawformat is not object
 	format := rawformat.(map[string]interface{})
 
-	for field, _ := range data {
-		// handle error
-		desc, _ := parseTypeDescriptor(format, field)
+	for field, value := range data {
+		desc, err := parseTypeDescriptor(format, field)
+		if err != nil {
+			return fmt.Errorf("error getting type descriptor for field[%s]: %s", field, err)
+		}
 		// handle unknown type
-		getchecker(desc.Type)
-
+		checker, err := getchecker(desc.Type)
+		if err != nil {
+			return fmt.Errorf("error getting type checker for field[%s]: %s", field, err)
+		}
+		if err := checker(value, desc.Format); err != nil {
+			return fmt.Errorf("error validating field[%s] value[%s]: %s", field, value, err)
+		}
 	}
+
 	return nil
 }
 
 func checkString(rawdata interface{}, format interface{}) error {
+	// TODO: implement support to format on strings
+
+	_, ok := rawdata.(string)
+	if !ok {
+		return fmt.Errorf("expected string, got [%s]", rawdata)
+	}
 	return nil
 }
 
-func getchecker(typename string) typechecker {
+func checkFloat(rawdata interface{}, format interface{}) error {
+	// TODO
+	return nil
+}
+
+func checkInt(rawdata interface{}, format interface{}) error {
+	// TODO
+	return nil
+}
+
+func checkArray(rawdata interface{}, format interface{}) error {
+	// TODO
+	return nil
+}
+
+func getchecker(typename string) (typechecker, error) {
 	switch typename {
 	case "string":
 		{
-			return checkString
+			return checkString, nil
+		}
+	case "float":
+		{
+			return checkFloat, nil
+		}
+	case "int":
+		{
+			return checkInt, nil
+		}
+	case "object":
+		{
+			return checkObject, nil
+		}
+	case "array":
+		{
+			return checkArray, nil
 		}
 	}
-	return nil
+
+	return nil, fmt.Errorf("unknown type[%s]", typename)
 }
 
 func parseTypeDescriptor(schema map[string]interface{}, field string) (typeDescriptor, error) {
