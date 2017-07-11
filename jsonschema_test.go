@@ -227,6 +227,85 @@ func TestFailureOn(t *testing.T) {
 	testScenarios(t, scenarios)
 }
 
+func TestSuccessArray(t *testing.T) {
+
+	testScenarios(t, []Scenario{
+		Scenario{
+			name: "OfObjects",
+			data: `{
+				"arrayField": [ {"stringField":"hi"} ]
+			}`,
+			schema: `{
+				"arrayField": {
+					"type" : "array",
+					"format" : {
+						"type" : "object",
+						"format" : {
+							"stringField" : {
+								"type" : "string"
+							}
+						}
+					}
+				}
+			}`,
+			success: true,
+		},
+		Scenario{
+			name: "OfOneString",
+			data: `{
+				"arrayField": [ "string1" ]
+			}`,
+			schema: `{
+				"arrayField": {
+					"type" : "array",
+					"format" : {
+						"type" : "string"
+					}
+				}
+			}`,
+			success: true,
+		},
+		Scenario{
+			name: "OfMultipleStrings",
+			data: `{
+				"arrayField": [ "string1", "string2", "string3"]
+			}`,
+			schema: `{
+				"arrayField": {
+					"type" : "array",
+					"format" : {
+						"type" : "string"
+					}
+				}
+			}`,
+			success: true,
+		},
+		Scenario{
+			name: "NestedWithObjects",
+			data: `{
+				"arrayField": [ [ {"stringField":"hi"} ] ]
+			}`,
+			schema: `{
+				"arrayField": {
+					"type" : "array",
+					"format" : {
+						"type" : "array",
+						"format" : {
+							"type" : "object",
+							"format" : {
+								"stringField" : {
+									"type" : "string"
+								}
+							}
+						}
+					}
+				}
+			}`,
+			success: true,
+		},
+	})
+}
+
 func TestSuccessOn(t *testing.T) {
 
 	scenarios := []Scenario{
@@ -255,49 +334,6 @@ func TestSuccessOn(t *testing.T) {
 					"format" : {
 						"stringField" : {
 							"type" : "string"
-						}
-					}
-				}
-			}`,
-			success: true,
-		},
-		Scenario{
-			name: "ArrayOfObjects",
-			data: `{
-				"arrayField": [ {"stringField":"hi"} ]
-			}`,
-			schema: `{
-				"arrayField": {
-					"type" : "array",
-					"format" : {
-						"type" : "object",
-						"format" : {
-							"stringField" : {
-								"type" : "string"
-							}
-						}
-					}
-				}
-			}`,
-			success: true,
-		},
-		Scenario{
-			name: "NestedArrayOfObjects",
-			data: `{
-				"arrayField": [ [ {"stringField":"hi"} ] ]
-			}`,
-			schema: `{
-				"arrayField": {
-					"type" : "array",
-					"format" : {
-						"type" : "array",
-						"format" : {
-							"type" : "object",
-							"format" : {
-								"stringField" : {
-									"type" : "string"
-								}
-							}
 						}
 					}
 				}
