@@ -49,18 +49,20 @@ func Check(data []byte, schema []byte) error {
 
 type typeDescriptor struct {
 	Type   string
-	Format map[string]interface{}
+	Format interface{}
 }
 
-type typechecker func(rawdata interface{}, schema map[string]interface{}) error
+type typechecker func(rawdata interface{}, rawformat interface{}) error
 
-func checkObject(rawdata interface{}, schema map[string]interface{}) error {
+func checkObject(rawdata interface{}, rawformat interface{}) error {
 	// handle rawdata is not object
 	data := rawdata.(map[string]interface{})
+	// handle rawformat is not object
+	format := rawformat.(map[string]interface{})
 
 	for field, _ := range data {
 		// handle error
-		desc, _ := parseTypeDescriptor(schema, field)
+		desc, _ := parseTypeDescriptor(format, field)
 		// handle unknown type
 		getchecker(desc.Type)
 
@@ -68,7 +70,17 @@ func checkObject(rawdata interface{}, schema map[string]interface{}) error {
 	return nil
 }
 
+func checkString(rawdata interface{}, format interface{}) error {
+	return nil
+}
+
 func getchecker(typename string) typechecker {
+	switch typename {
+	case "string":
+		{
+			return checkString
+		}
+	}
 	return nil
 }
 
