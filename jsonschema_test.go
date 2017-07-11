@@ -7,17 +7,17 @@ import (
 	"github.com/NeowayLabs/jsonschema"
 )
 
-func TestFailures(t *testing.T) {
+func TestFailureOn(t *testing.T) {
 
 	scenarios := []Scenario{
 		Scenario{
-			name:    "emptySchema",
+			name:    "EmptySchema",
 			data:    `{"intField": 1}`,
 			schema:  `{}`,
 			success: false,
 		},
 		Scenario{
-			name:    "everythingEmpty",
+			name:    "EverythingEmpty",
 			data:    `{}`,
 			schema:  `{}`,
 			success: false,
@@ -29,25 +29,27 @@ func TestFailures(t *testing.T) {
 	}
 }
 
-//func TestCheckUsingFieldStringShouldReturnTrue(t *testing.T) {
+func TestSuccessOn(t *testing.T) {
 
-//schema := map[string]interface{}{
-//"stringField": map[string]interface{}{
-//"type": "string",
-//},
-//}
+	scenarios := []Scenario{
+		Scenario{
+			name: "StringField",
+			data: `{
+				"stringField": "name"
+			}`,
+			schema: `{
+				"stringField": {
+					"type" : "string"
+				}
+			}`,
+			success: true,
+		},
+	}
 
-//data := map[string]interface{}{
-//"stringField": "name",
-//}
-
-//expected := true
-//actual := jsonschema.Check(data, schema)
-
-//if actual != expected {
-//t.Error("Test failed. Expected", expected, "but returned", actual)
-//}
-//}
+	for _, scenario := range scenarios {
+		testScenario(t, scenario)
+	}
+}
 
 //func TestCheckUsingFieldStringShouldReturnFalseWhenTypeIsntString(t *testing.T) {
 
