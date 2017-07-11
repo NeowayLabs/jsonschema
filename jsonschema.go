@@ -171,8 +171,10 @@ func parseTypeDescriptor(rawDescriptor interface{}) (typeDescriptor, error) {
 	// TODO: handle descriptor of wrong type
 	parsedDescriptor := rawDescriptor.(map[string]interface{})
 
-	// TODO: handle type of wrong type =P
-	rawType := parsedDescriptor["type"]
+	rawType, ok := parsedDescriptor["type"]
+	if !ok {
+		return typeDescriptor{}, fmt.Errorf("missing 'type' on type descriptor[%s]", rawDescriptor)
+	}
 	parsedType := rawType.(string)
 
 	// TODO: handle format of wrong type

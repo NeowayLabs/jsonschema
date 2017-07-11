@@ -25,6 +25,21 @@ func TestFailureArray(t *testing.T) {
 			success: false,
 		},
 		Scenario{
+			name: "UnknownType",
+			data: `{
+				"arrayField" : [ "hi" ]
+			}`,
+			schema: `{
+				"arrayField" : {
+					"type": "array",
+					"format" : {
+						"type" : "unknown"
+					}
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
 			name: "FirstValueHasWrongType",
 			data: `{
 				"arrayField" : [ 1, "hi" ]
@@ -133,6 +148,18 @@ func TestFailureOn(t *testing.T) {
 			schema: `{
 				"data" : {
 					"type": "unknown"
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
+			name: "AbsentType",
+			data: `{
+				"data" : 1
+			}`,
+			schema: `{
+				"data" : {
+					"blabla": "unknown"
 				}
 			}`,
 			success: false,
