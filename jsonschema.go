@@ -113,11 +113,13 @@ func checkArray(rawdata interface{}, rawformat interface{}) error {
 	// TODO: handle rawformat is not object
 	format := rawformat.(map[string]interface{})
 
+	desc, err := parseTypeDescriptor(format)
+	if err != nil {
+		// TODO: Test this error condition
+		return fmt.Errorf("error parsing type descriptor from format[%s]: %s", format, err)
+	}
+
 	for _, value := range data {
-		desc, err := parseTypeDescriptor(format)
-		if err != nil {
-			return fmt.Errorf("error parsing type descriptor from format[%s]: %s", format, err)
-		}
 		checker, err := getchecker(desc.Type)
 		if err != nil {
 			return fmt.Errorf("error getting type checker for type[%s]: %s", desc.Type, err)
