@@ -35,7 +35,7 @@ func TestFailureOn(t *testing.T) {
 			success: false,
 		},
 		Scenario{
-			name: "WrongobjectField",
+			name: "WrongObjectField",
 			data: `{
 				"stringField" : 1
 			}`,
@@ -59,7 +59,7 @@ func TestFailureOn(t *testing.T) {
 			success: false,
 		},
 		Scenario{
-			name: "ObjectField",
+			name: "WrongObjectField",
 			data: `{
 				"objectField": "wrong"
 			}`,
@@ -69,6 +69,49 @@ func TestFailureOn(t *testing.T) {
 					"format" : {
 						"stringField" : {
 							"type" : "string"
+						}
+					}
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
+			name: "WrongNestedFloat",
+			data: `{
+				"objectField": {
+					"nestedFloat" : "wrong"
+				}
+			}`,
+			schema: `{
+				"objectField": {
+					"type" : "object",
+					"format" : {
+						"nestedFloat" : {
+							"type" : "float"
+						}
+					}
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
+			name: "WrongNestedObject",
+			data: `{
+				"objectField": {
+					"nestedObject" : "wrong"
+				}
+			}`,
+			schema: `{
+				"objectField": {
+					"type" : "object",
+					"format" : {
+						"nestedObject" : {
+							"type" : "object",
+							"format" : {
+								"s" : {
+									"type" : "string"
+								}
+							}
 						}
 					}
 				}
@@ -134,58 +177,6 @@ func TestSuccessOn(t *testing.T) {
 		testScenario(t, scenario)
 	}
 }
-
-//func TestCheckUsingFieldObjectShouldReturnFalseWhenTypeIsntObject(t *testing.T) {
-
-//schema := map[string]interface{}{
-//"objectField": map[string]interface{}{
-//"type": "object",
-//"format": map[string]interface{}{
-//"stringField": map[string]interface{}{
-//"type": "string",
-//},
-//},
-//},
-//}
-
-//data := map[string]interface{}{
-//"objectField": "field",
-//}
-
-//expected := false
-//actual := jsonschema.Check(data, schema)
-
-//if actual != expected {
-//t.Error("Test failed. Expected", expected, "but returned", actual)
-//}
-//}
-
-//func TestCheckUsingFieldObjectShouldReturnFalseWhenTypeInsideObjectIsntExpectedType(t *testing.T) {
-
-//schema := map[string]interface{}{
-//"objectField": map[string]interface{}{
-//"type": "object",
-//"format": map[string]interface{}{
-//"stringField": map[string]interface{}{
-//"type": "string",
-//},
-//},
-//},
-//}
-
-//data := map[string]interface{}{
-//"objectField": map[string]interface{}{
-//"stringField": 1,
-//},
-//}
-
-//expected := false
-//actual := jsonschema.Check(data, schema)
-
-//if actual != expected {
-//t.Error("Test failed. Expected", expected, "but returned", actual)
-//}
-//}
 
 //func TestCheckUsingMultipleFieldObjectShouldReturnTrue(t *testing.T) {
 
