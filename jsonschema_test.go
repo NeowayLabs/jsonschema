@@ -25,7 +25,7 @@ func TestFailureArray(t *testing.T) {
 			success: false,
 		},
 		Scenario{
-			name: "UnknownType",
+			name: "FormatWithUnknownType",
 			data: `{
 				"arrayField" : [ "hi" ]
 			}`,
@@ -34,6 +34,21 @@ func TestFailureArray(t *testing.T) {
 					"type": "array",
 					"format" : {
 						"type" : "unknown"
+					}
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
+			name: "FormatWithoutType",
+			data: `{
+				"arrayField" : [ "hi" ]
+			}`,
+			schema: `{
+				"arrayField" : {
+					"type": "array",
+					"format" : {
+						"bazuca" : "doom"
 					}
 				}
 			}`,
