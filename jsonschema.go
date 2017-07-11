@@ -61,15 +61,15 @@ func checkObject(rawdata interface{}, rawformat interface{}) error {
 	if !ok {
 		return fmt.Errorf("expected data to be an 'object', it is: %q", reflect.TypeOf(rawdata))
 	}
-	// handle rawformat is not object
+	// TODO: handle rawformat is not object
 	format := rawformat.(map[string]interface{})
 
 	for field, value := range data {
-		desc, err := parseTypeDescriptor(format, field)
+		desc, err := parseFieldTypeDescriptor(format, field)
 		if err != nil {
 			return fmt.Errorf("error getting type descriptor for field[%s]: %s", field, err)
 		}
-		// handle unknown type
+		// TODO: handle unknown type
 		checker, err := getchecker(desc.Type)
 		if err != nil {
 			return fmt.Errorf("error getting type checker for field[%s]: %s", field, err)
@@ -105,8 +105,28 @@ func checkInt(rawdata interface{}, format interface{}) error {
 	return nil
 }
 
-func checkArray(rawdata interface{}, format interface{}) error {
-	// TODO
+func checkArray(rawdata interface{}, rawformat interface{}) error {
+	data, ok := rawdata.([]interface{})
+	if !ok {
+		return fmt.Errorf("expected data to be an 'array', it is: %q", reflect.TypeOf(rawdata))
+	}
+	// TODO: handle rawformat is not object
+	format := rawformat.(map[string]interface{})
+
+	for _, value := range data {
+		desc, err := parseTypeDescriptor(format)
+		if err != nil {
+			return fmt.Errorf("error parsing type descriptor from format[%s]: %s", format, err)
+		}
+		checker, err := getchecker(desc.Type)
+		if err != nil {
+			return fmt.Errorf("error getting type checker for type[%s]: %s", desc.Type, err)
+		}
+		if err := checker(value, desc.Format); err != nil {
+			return fmt.Errorf("error validating value[%s]: %s", value, err)
+		}
+	}
+
 	return nil
 }
 
@@ -137,12 +157,17 @@ func getchecker(typename string) (typechecker, error) {
 	return nil, fmt.Errorf("unknown type[%s]", typename)
 }
 
-func parseTypeDescriptor(schema map[string]interface{}, field string) (typeDescriptor, error) {
+func parseFieldTypeDescriptor(schema map[string]interface{}, field string) (typeDescriptor, error) {
 	// TODO: handle field not found
 	rawDescriptor, ok := schema[field]
 	if !ok {
 		return typeDescriptor{}, fmt.Errorf("unable to find [%s] in schema[%s]", field, schema)
 	}
+
+	return parseTypeDescriptor(rawDescriptor)
+}
+
+func parseTypeDescriptor(rawDescriptor interface{}) (typeDescriptor, error) {
 	// TODO: handle descriptor of wrong type
 	parsedDescriptor := rawDescriptor.(map[string]interface{})
 

@@ -81,7 +81,7 @@ func TestFailureOn(t *testing.T) {
 					}
 				}
 			}`,
-			success: true, // TODO
+			success: false,
 		},
 		Scenario{
 			name: "WrongNestedArray",
@@ -99,7 +99,7 @@ func TestFailureOn(t *testing.T) {
 					}
 				}
 			}`,
-			success: true, //TODO
+			success: false,
 		},
 		Scenario{
 			name: "WrongObjectInsideNestedArray",
@@ -122,7 +122,7 @@ func TestFailureOn(t *testing.T) {
 					}
 				}
 			}`,
-			success: true, //TODO
+			success: false,
 		},
 		Scenario{
 			name: "WrongFloat",
