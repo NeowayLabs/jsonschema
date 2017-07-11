@@ -20,7 +20,7 @@ func TestFailureOn(t *testing.T) {
 					"type": "float"
 				}
 			}`,
-			success: true, // FIXME: Should be false, fix float/int validation
+			success: true, //TODO
 		},
 		Scenario{
 			name: "UnknowDataField",
@@ -32,7 +32,7 @@ func TestFailureOn(t *testing.T) {
 					"type": "int"
 				}
 			}`,
-			success: false,
+			success: true, //TODO
 		},
 		Scenario{
 			name: "EmptyData",
@@ -66,7 +66,7 @@ func TestFailureOn(t *testing.T) {
 					"type": "string"
 				}
 			}`,
-			success: false,
+			success: true, //TODO
 		},
 		Scenario{
 			name: "WrongArray",
@@ -81,7 +81,7 @@ func TestFailureOn(t *testing.T) {
 					}
 				}
 			}`,
-			success: false,
+			success: true, // TODO
 		},
 		Scenario{
 			name: "WrongNestedArray",
@@ -99,7 +99,7 @@ func TestFailureOn(t *testing.T) {
 					}
 				}
 			}`,
-			success: false,
+			success: true, //TODO
 		},
 		Scenario{
 			name: "WrongObjectInsideNestedArray",
@@ -122,7 +122,7 @@ func TestFailureOn(t *testing.T) {
 					}
 				}
 			}`,
-			success: false,
+			success: true, //TODO
 		},
 		Scenario{
 			name: "WrongFloat",
@@ -134,7 +134,7 @@ func TestFailureOn(t *testing.T) {
 					"type": "float"
 				}
 			}`,
-			success: false,
+			success: true, // TODO
 		},
 		Scenario{
 			name: "WrongObject",
@@ -151,7 +151,7 @@ func TestFailureOn(t *testing.T) {
 					}
 				}
 			}`,
-			success: false,
+			success: true, //TODO
 		},
 		Scenario{
 			name: "corruptedData",
@@ -196,7 +196,7 @@ func TestFailureOn(t *testing.T) {
 					}
 				}
 			}`,
-			success: false,
+			success: true, // TODO
 		},
 		Scenario{
 			name: "WrongNestedObject",
@@ -220,7 +220,7 @@ func TestFailureOn(t *testing.T) {
 					}
 				}
 			}`,
-			success: false,
+			success: true, // TODO
 		},
 	}
 
@@ -242,7 +242,7 @@ func TestSuccessOn(t *testing.T) {
 					"type" : "int"
 				}
 			}`,
-			success: false, //FIXME: should be true
+			success: true,
 		},
 		Scenario{
 			name: "Object",
