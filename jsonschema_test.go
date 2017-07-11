@@ -165,6 +165,18 @@ func TestFailureOn(t *testing.T) {
 			success: false,
 		},
 		Scenario{
+			name: "TypeWithWrongValueType",
+			data: `{
+				"data" : 1
+			}`,
+			schema: `{
+				"data" : {
+					"type": 5
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
 			name: "EmptyData",
 			data: `{}`,
 			schema: `{

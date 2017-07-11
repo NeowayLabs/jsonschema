@@ -175,7 +175,13 @@ func parseTypeDescriptor(rawDescriptor interface{}) (typeDescriptor, error) {
 	if !ok {
 		return typeDescriptor{}, fmt.Errorf("missing 'type' on type descriptor[%s]", rawDescriptor)
 	}
-	parsedType := rawType.(string)
+	parsedType, ok := rawType.(string)
+	if !ok {
+		return typeDescriptor{}, fmt.Errorf(
+			"'type' has invalid type[%s], expected string",
+			reflect.TypeOf(rawType),
+		)
+	}
 
 	// TODO: handle format of wrong type
 	var parsedFormat map[string]interface{}
