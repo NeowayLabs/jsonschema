@@ -47,8 +47,53 @@ func Check(data []byte, schema []byte) error {
 	return checkObject(parsedData, parsedSchema)
 }
 
-func checkObject(data map[string]interface{}, schema map[string]interface{}) error {
-	//for field, value := range data {
-	//}
+type typeDescriptor struct {
+	Type   string
+	Format map[string]interface{}
+}
+
+type typechecker func(rawdata interface{}, schema map[string]interface{}) error
+
+func checkObject(rawdata interface{}, schema map[string]interface{}) error {
+	// handle rawdata is not object
+	data := rawdata.(map[string]interface{})
+
+	for field, _ := range data {
+		// handle error
+		desc, _ := parseTypeDescriptor(schema, field)
+		// handle unknown type
+		getchecker(desc.Type)
+
+	}
 	return nil
+}
+
+func getchecker(typename string) typechecker {
+	return nil
+}
+
+func parseTypeDescriptor(schema map[string]interface{}, field string) (typeDescriptor, error) {
+	// TODO: handle field not found
+	rawDescriptor, ok := schema[field]
+	if !ok {
+		return typeDescriptor{}, fmt.Errorf("unable to find [%s] in schema[%s]", field, schema)
+	}
+	// TODO: handle descriptor of wrong type
+	parsedDescriptor := rawDescriptor.(map[string]interface{})
+
+	// TODO: handle type of wrong type =P
+	rawType := parsedDescriptor["type"]
+	parsedType := rawType.(string)
+
+	// TODO: handle format of wrong type
+	var parsedFormat map[string]interface{}
+	rawFormat, ok := parsedDescriptor["format"]
+	if ok {
+		parsedFormat = rawFormat.(map[string]interface{})
+	}
+
+	return typeDescriptor{
+		Type:   parsedType,
+		Format: parsedFormat,
+	}, nil
 }

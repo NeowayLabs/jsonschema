@@ -66,7 +66,7 @@ func TestFailureOn(t *testing.T) {
 					"type": "string"
 				}
 			}`,
-			success: true, //TODO
+			success: false,
 		},
 		Scenario{
 			name: "WrongArray",
