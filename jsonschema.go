@@ -21,6 +21,9 @@ func Check(data []byte, schema []byte) error {
 
 	// TODO: accumulate all errors on data instead of returning
 	// the first found error (avoid ping/pong of errors).
+
+	// TODO: test obligatory fields
+
 	parsedData := map[string]interface{}{}
 	parsedSchema := map[string]interface{}{}
 
