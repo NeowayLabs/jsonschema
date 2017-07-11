@@ -224,9 +224,7 @@ func TestFailureOn(t *testing.T) {
 		},
 	}
 
-	for _, scenario := range scenarios {
-		testScenario(t, scenario)
-	}
+	testScenarios(t, scenarios)
 }
 
 func TestSuccessOn(t *testing.T) {
@@ -346,9 +344,7 @@ func TestSuccessOn(t *testing.T) {
 		},
 	}
 
-	for _, scenario := range scenarios {
-		testScenario(t, scenario)
-	}
+	testScenarios(t, scenarios)
 }
 
 type Scenario struct {
@@ -356,6 +352,12 @@ type Scenario struct {
 	schema  string
 	data    string
 	success bool
+}
+
+func testScenarios(t *testing.T, scenarios []Scenario) {
+	for _, scenario := range scenarios {
+		testScenario(t, scenario)
+	}
 }
 
 func testScenario(t *testing.T, s Scenario) {
