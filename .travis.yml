@@ -14,8 +14,6 @@ install:
 script:
   - make analyze
   - make cover
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
 notifications:
   email:
     - tiago.katcipis@neoway.com.br
