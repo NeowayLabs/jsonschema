@@ -1,4 +1,4 @@
-COVERFILE=cover.out
+COVERFILE=coverage.txt
 COVERFILE_HTML=cover.html
 
 check:
