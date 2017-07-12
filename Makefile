@@ -14,5 +14,11 @@ analyze:
 	gosimple .
 	unused .
 
-devdeps:
+docs:
+	mdtoc -w ./docs/spec.md
+
+depsdev:
 	go get -u honnef.co/go/tools/...
+	go get -u github.com/katcipis/mdtoc/cmd/mdtoc
+
+.PHONY:docs depsdev analyze cover check

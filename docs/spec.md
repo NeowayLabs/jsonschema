@@ -1,3 +1,16 @@
+<!-- mdtocstart -->
+
+# Table of Contents
+
+- [JSON Schema Specification](#json-schema-specification)
+    - [String](#string)
+    - [Float](#float)
+    - [Int](#int)
+    - [Object](#object)
+    - [Array](#array)
+
+<!-- mdtocend -->
+
 # JSON Schema Specification
 
 Here is defined a schema language that uses JSON to
