@@ -7,69 +7,10 @@ import (
 	"github.com/NeowayLabs/jsonschema"
 )
 
-func TestFailureOn(t *testing.T) {
-
-	scenarios := []Scenario{
+func TestFailureArray(t *testing.T) {
+	testScenarios(t, []Scenario{
 		Scenario{
-			name: "ExpectFloatButGotInt",
-			data: `{
-				"floatField" : 1
-			}`,
-			schema: `{
-				"floatField" : {
-					"type": "float"
-				}
-			}`,
-			success: true, // FIXME: Should be false, fix float/int validation
-		},
-		Scenario{
-			name: "UnknowDataField",
-			data: `{
-				"unknow" : 1
-			}`,
-			schema: `{
-				"intfield" : {
-					"type": "int"
-				}
-			}`,
-			success: false,
-		},
-		Scenario{
-			name: "EmptyData",
-			data: `{}`,
-			schema: `{
-				"floatField" : {
-					"type": "float"
-				}
-			}`,
-			success: false,
-		},
-		Scenario{
-			name:    "EmptySchema",
-			data:    `{"intField": 1}`,
-			schema:  `{}`,
-			success: false,
-		},
-		Scenario{
-			name:    "EverythingEmpty",
-			data:    `{}`,
-			schema:  `{}`,
-			success: false,
-		},
-		Scenario{
-			name: "WrongString",
-			data: `{
-				"stringField" : 1
-			}`,
-			schema: `{
-				"stringField" : {
-					"type": "string"
-				}
-			}`,
-			success: false,
-		},
-		Scenario{
-			name: "WrongArray",
+			name: "WrongType",
 			data: `{
 				"arrayField" : 1
 			}`,
@@ -84,7 +25,67 @@ func TestFailureOn(t *testing.T) {
 			success: false,
 		},
 		Scenario{
-			name: "WrongNestedArray",
+			name: "FormatWithUnknownType",
+			data: `{
+				"arrayField" : [ "hi" ]
+			}`,
+			schema: `{
+				"arrayField" : {
+					"type": "array",
+					"format" : {
+						"type" : "unknown"
+					}
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
+			name: "FormatWithoutType",
+			data: `{
+				"arrayField" : [ "hi" ]
+			}`,
+			schema: `{
+				"arrayField" : {
+					"type": "array",
+					"format" : {
+						"bazuca" : "doom"
+					}
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
+			name: "FirstValueHasWrongType",
+			data: `{
+				"arrayField" : [ 1, "hi" ]
+			}`,
+			schema: `{
+				"arrayField" : {
+					"type": "array",
+					"format" : {
+						"type" : "string"
+					}
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
+			name: "SecondValueHasWrongType",
+			data: `{
+				"arrayField" : [ "hi", { "wrong" : 1 } ]
+			}`,
+			schema: `{
+				"arrayField" : {
+					"type": "array",
+					"format" : {
+						"type" : "string"
+					}
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
+			name: "WrongTypeOnNestedArray",
 			data: `{
 				"arrayField" : [ [ { "stringField" : 1 } ] ]
 			}`,
@@ -120,6 +121,106 @@ func TestFailureOn(t *testing.T) {
 							}
 						}
 					}
+				}
+			}`,
+			success: false,
+		},
+	})
+}
+
+func TestFailureOn(t *testing.T) {
+
+	scenarios := []Scenario{
+		Scenario{
+			name: "ExpectFloatButGotInt",
+			data: `{
+				"floatField" : 1
+			}`,
+			schema: `{
+				"floatField" : {
+					"type": "float"
+				}
+			}`,
+			success: true, //TODO
+		},
+		Scenario{
+			name: "UnknowDataField",
+			data: `{
+				"unknow" : 1
+			}`,
+			schema: `{
+				"intfield" : {
+					"type": "int"
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
+			name: "UnknowFieldType",
+			data: `{
+				"data" : 1
+			}`,
+			schema: `{
+				"data" : {
+					"type": "unknown"
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
+			name: "AbsentType",
+			data: `{
+				"data" : 1
+			}`,
+			schema: `{
+				"data" : {
+					"blabla": "unknown"
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
+			name: "TypeWithWrongValueType",
+			data: `{
+				"data" : 1
+			}`,
+			schema: `{
+				"data" : {
+					"type": 5
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
+			name: "EmptyData",
+			data: `{}`,
+			schema: `{
+				"floatField" : {
+					"type": "float"
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
+			name:    "EmptySchema",
+			data:    `{"intField": 1}`,
+			schema:  `{}`,
+			success: false,
+		},
+		Scenario{
+			name:    "EverythingEmpty",
+			data:    `{}`,
+			schema:  `{}`,
+			success: false,
+		},
+		Scenario{
+			name: "WrongString",
+			data: `{
+				"stringField" : 1
+			}`,
+			schema: `{
+				"stringField" : {
+					"type": "string"
 				}
 			}`,
 			success: false,
@@ -173,9 +274,9 @@ func TestFailureOn(t *testing.T) {
 				}
 			}`,
 			schema: `
-				"objectField": {
+				"objectField: {
 					type" : "object",
-					}
+				}
 			}`,
 			success: false,
 		},
@@ -224,47 +325,14 @@ func TestFailureOn(t *testing.T) {
 		},
 	}
 
-	for _, scenario := range scenarios {
-		testScenario(t, scenario)
-	}
+	testScenarios(t, scenarios)
 }
 
-func TestSuccessOn(t *testing.T) {
+func TestSuccessArray(t *testing.T) {
 
-	scenarios := []Scenario{
+	testScenarios(t, []Scenario{
 		Scenario{
-			name: "Int",
-			data: `{
-				"intField": 1
-			}`,
-			schema: `{
-				"intField": {
-					"type" : "int"
-				}
-			}`,
-			success: false, //FIXME: should be true
-		},
-		Scenario{
-			name: "Object",
-			data: `{
-				"objectField": {
-					"stringField" : "name"
-				}
-			}`,
-			schema: `{
-				"objectField": {
-					"type" : "object",
-					"format" : {
-						"stringField" : {
-							"type" : "string"
-						}
-					}
-				}
-			}`,
-			success: true,
-		},
-		Scenario{
-			name: "ArrayOfObjects",
+			name: "OfObjects",
 			data: `{
 				"arrayField": [ {"stringField":"hi"} ]
 			}`,
@@ -284,7 +352,67 @@ func TestSuccessOn(t *testing.T) {
 			success: true,
 		},
 		Scenario{
-			name: "NestedArrayOfObjects",
+			name: "OfOneString",
+			data: `{
+				"arrayField": [ "string1" ]
+			}`,
+			schema: `{
+				"arrayField": {
+					"type" : "array",
+					"format" : {
+						"type" : "string"
+					}
+				}
+			}`,
+			success: true,
+		},
+		Scenario{
+			name: "OfMultipleStrings",
+			data: `{
+				"arrayField": [ "string1", "string2", "string3"]
+			}`,
+			schema: `{
+				"arrayField": {
+					"type" : "array",
+					"format" : {
+						"type" : "string"
+					}
+				}
+			}`,
+			success: true,
+		},
+		Scenario{
+			name: "OfOneFloat",
+			data: `{
+				"arrayField": [ 3.33 ]
+			}`,
+			schema: `{
+				"arrayField": {
+					"type" : "array",
+					"format" : {
+						"type" : "float"
+					}
+				}
+			}`,
+			success: true,
+		},
+		Scenario{
+			name: "OfMultipleFloats",
+			data: `{
+				"arrayField": [ 1.11, 2.21, 6.66 ]
+			}`,
+			schema: `{
+				"arrayField": {
+					"type" : "array",
+					"format" : {
+						"type" : "float"
+					}
+				}
+			}`,
+			success: true,
+		},
+		Scenario{
+			name: "NestedWithObjects",
 			data: `{
 				"arrayField": [ [ {"stringField":"hi"} ] ]
 			}`,
@@ -300,6 +428,43 @@ func TestSuccessOn(t *testing.T) {
 									"type" : "string"
 								}
 							}
+						}
+					}
+				}
+			}`,
+			success: true,
+		},
+	})
+}
+
+func TestSuccessOn(t *testing.T) {
+
+	scenarios := []Scenario{
+		Scenario{
+			name: "Int",
+			data: `{
+				"intField": 1
+			}`,
+			schema: `{
+				"intField": {
+					"type" : "int"
+				}
+			}`,
+			success: true,
+		},
+		Scenario{
+			name: "Object",
+			data: `{
+				"objectField": {
+					"stringField" : "name"
+				}
+			}`,
+			schema: `{
+				"objectField": {
+					"type" : "object",
+					"format" : {
+						"stringField" : {
+							"type" : "string"
 						}
 					}
 				}
@@ -346,9 +511,7 @@ func TestSuccessOn(t *testing.T) {
 		},
 	}
 
-	for _, scenario := range scenarios {
-		testScenario(t, scenario)
-	}
+	testScenarios(t, scenarios)
 }
 
 type Scenario struct {
@@ -356,6 +519,12 @@ type Scenario struct {
 	schema  string
 	data    string
 	success bool
+}
+
+func testScenarios(t *testing.T, scenarios []Scenario) {
+	for _, scenario := range scenarios {
+		testScenario(t, scenario)
+	}
 }
 
 func testScenario(t *testing.T, s Scenario) {

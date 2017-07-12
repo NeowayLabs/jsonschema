@@ -1,8 +1,8 @@
-COVERFILE=cover.out
+COVERFILE=coverage.txt
 COVERFILE_HTML=cover.html
 
 check:
-	go test -coverprofile cover.out -race ./...
+	go test -coverprofile $(COVERFILE) -race ./...
 
 cover: check
 	go tool cover -html=$(COVERFILE) -o=$(COVERFILE_HTML)

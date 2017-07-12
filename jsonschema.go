@@ -45,126 +45,155 @@ func Check(data []byte, schema []byte) error {
 		return errors.New("input schema is empty")
 	}
 
-	for field, value := range parsedData {
-		if parsedSchema[field] == nil {
-			return errors.New("TODO:1")
-		}
-
-		s := parsedSchema[field]
-		t := s.(map[string]interface{})["type"]
-		if s == nil || t == nil {
-			return errors.New("TODO:2")
-		}
-
-		if t.(string) == "object" {
-			o := s.(map[string]interface{})["format"]
-			if o != nil && reflect.TypeOf(value).String() == "map[string]interface {}" && reflect.TypeOf(o).String() == "map[string]interface {}" {
-				return validateObject(value.(map[string]interface{}), o.(map[string]interface{}))
-			}
-			return errors.New("TODO:3")
-		} else if t.(string) == "array" {
-			o := s.(map[string]interface{})["format"]
-			if o != nil && reflect.TypeOf(value).String() == "[]interface {}" && reflect.TypeOf(o).String() == "map[string]interface {}" {
-				return validateArray(value.([]interface{}), o.(map[string]interface{}))
-			}
-			return errors.New("TODO:4")
-		} else {
-			valueType := reflect.TypeOf(value).String()
-			expectedType := typeMapping(t.(string))
-
-			if valueType != expectedType {
-				return fmt.Errorf(
-					"expected type[%s] got type[%s] value[%s]",
-					expectedType,
-					valueType,
-					value,
-				)
-			}
-		}
-
-	}
-
-	return nil
+	return checkObject(parsedData, parsedSchema)
 }
 
-func validateArray(values []interface{}, schema map[string]interface{}) error {
-
-	for _, data := range values {
-		t := schema["type"]
-		if t != nil {
-
-			if t.(string) == "object" {
-				o := schema["format"]
-				if o != nil && reflect.TypeOf(data).String() == "map[string]interface {}" && reflect.TypeOf(o).String() == "map[string]interface {}" {
-					return validateObject(data.(map[string]interface{}), o.(map[string]interface{}))
-				}
-				return errors.New("TODO: 1")
-			}
-
-			if t.(string) == "array" {
-				o := schema["format"]
-				if o != nil && reflect.TypeOf(data).String() == "[]interface {}" && reflect.TypeOf(o).String() == "map[string]interface {}" {
-					return validateArray(data.([]interface{}), o.(map[string]interface{}))
-				}
-
-				return errors.New("TODO: 2")
-			}
-
-			return errors.New("TODO: 3")
-		}
-	}
-
-	// TODO: test
-	return nil
+type typeDescriptor struct {
+	Type   string
+	Format interface{}
 }
 
-func validateObject(data, schema map[string]interface{}) error {
+type typechecker func(rawdata interface{}, rawformat interface{}) error
+
+func checkObject(rawdata interface{}, rawformat interface{}) error {
+
+	data, ok := rawdata.(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("expected data to be an 'object', it is: %q", reflect.TypeOf(rawdata))
+	}
+	// TODO: handle rawformat is not object
+	format := rawformat.(map[string]interface{})
 
 	for field, value := range data {
-
-		if schema[field] == nil {
-			return errors.New("TODO:1")
+		desc, err := parseFieldTypeDescriptor(format, field)
+		if err != nil {
+			return fmt.Errorf("error getting type descriptor for field[%s]: %s", field, err)
 		}
-
-		s := schema[field]
-		t := s.(map[string]interface{})["type"]
-		if s == nil || t == nil {
-			return errors.New("TODO:2")
+		// TODO: handle unknown type
+		checker, err := getchecker(desc.Type)
+		if err != nil {
+			return fmt.Errorf("error getting type checker for field[%s]: %s", field, err)
 		}
-
-		if t.(string) == "object" {
-			o := s.(map[string]interface{})["format"]
-			if o != nil && reflect.TypeOf(value).String() == "map[string]interface {}" && reflect.TypeOf(o).String() == "map[string]interface {}" {
-				return validateObject(value.(map[string]interface{}), o.(map[string]interface{}))
-			}
-			return errors.New("TODO:3")
-		}
-
-		if t.(string) == "array" {
-			o := s.(map[string]interface{})["format"]
-			if o != nil && reflect.TypeOf(value).String() == "[]interface {}" && reflect.TypeOf(o).String() == "map[string]interface {}" {
-				return validateArray(value.([]interface{}), o.(map[string]interface{}))
-			}
-			return errors.New("TODO:4")
-		}
-
-		if reflect.TypeOf(value).String() != typeMapping(t.(string)) {
-			return errors.New("TODO:5")
+		if err := checker(value, desc.Format); err != nil {
+			return fmt.Errorf("error validating field[%s] value[%s]: %s", field, value, err)
 		}
 	}
 
 	return nil
 }
 
-func typeMapping(t string) string {
-	types := map[string]string{
-		"float": "float64",
+func checkString(rawdata interface{}, format interface{}) error {
+	// TODO: implement support to format on strings
+
+	_, ok := rawdata.(string)
+	if !ok {
+		return fmt.Errorf("expected string, got [%s]", reflect.TypeOf(rawdata))
+	}
+	return nil
+}
+
+func checkFloat(rawdata interface{}, format interface{}) error {
+	_, ok := rawdata.(float64)
+	if !ok {
+		return fmt.Errorf("expected float, got [%s]", reflect.TypeOf(rawdata))
+	}
+	return nil
+}
+
+func checkInt(rawdata interface{}, format interface{}) error {
+	// TODO
+	return nil
+}
+
+func checkArray(rawdata interface{}, rawformat interface{}) error {
+	data, ok := rawdata.([]interface{})
+	if !ok {
+		return fmt.Errorf("expected data to be an 'array', it is: %q", reflect.TypeOf(rawdata))
+	}
+	// TODO: handle rawformat is not object
+	format := rawformat.(map[string]interface{})
+
+	desc, err := parseTypeDescriptor(format)
+	if err != nil {
+		// TODO: Test this error condition
+		return fmt.Errorf("error parsing type descriptor from format[%s]: %s", format, err)
 	}
 
-	newType, found := types[t]
-	if found {
-		return newType
+	for _, value := range data {
+		checker, err := getchecker(desc.Type)
+		if err != nil {
+			return fmt.Errorf("error getting type checker for type[%s]: %s", desc.Type, err)
+		}
+		if err := checker(value, desc.Format); err != nil {
+			return fmt.Errorf("error validating value[%s]: %s", value, err)
+		}
 	}
 
-	return t
+	return nil
+}
+
+func getchecker(typename string) (typechecker, error) {
+	switch typename {
+	case "string":
+		{
+			return checkString, nil
+		}
+	case "float":
+		{
+			return checkFloat, nil
+		}
+	case "int":
+		{
+			return checkInt, nil
+		}
+	case "object":
+		{
+			return checkObject, nil
+		}
+	case "array":
+		{
+			return checkArray, nil
+		}
+	}
+
+	return nil, fmt.Errorf("unknown type[%s]", typename)
+}
+
+func parseFieldTypeDescriptor(schema map[string]interface{}, field string) (typeDescriptor, error) {
+	// TODO: handle field not found
+	rawDescriptor, ok := schema[field]
+	if !ok {
+		return typeDescriptor{}, fmt.Errorf("unable to find [%s] in schema[%s]", field, schema)
+	}
+
+	return parseTypeDescriptor(rawDescriptor)
+}
+
+func parseTypeDescriptor(rawDescriptor interface{}) (typeDescriptor, error) {
+	// TODO: handle descriptor of wrong type
+	parsedDescriptor := rawDescriptor.(map[string]interface{})
+
+	rawType, ok := parsedDescriptor["type"]
+	if !ok {
+		return typeDescriptor{}, fmt.Errorf("missing 'type' on type descriptor[%s]", rawDescriptor)
+	}
+	parsedType, ok := rawType.(string)
+	if !ok {
+		return typeDescriptor{}, fmt.Errorf(
+			"'type' has invalid type[%s], expected string",
+			reflect.TypeOf(rawType),
+		)
+	}
+
+	// TODO: handle format of wrong type
+	var parsedFormat map[string]interface{}
+	rawFormat, ok := parsedDescriptor["format"]
+	if ok {
+		parsedFormat = rawFormat.(map[string]interface{})
+	}
+
+	return typeDescriptor{
+		Type:   parsedType,
+		Format: parsedFormat,
+	}, nil
 }
