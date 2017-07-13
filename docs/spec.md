@@ -78,7 +78,7 @@ string fields:
     "lastname": {
         "type" : "string",
         "required": true,
-    }
+    },
     "birthday": {
         "type" : "string",
         "required": false,
@@ -262,7 +262,7 @@ Array of objects:
         "type": "array",
         "required": true,
         "format": {
-            "type" : "object"
+            "type" : "object",
             "format": {
                 "name" : {
                     "type": "string",
@@ -288,7 +288,7 @@ Array of object array:
         "format": {
             "type": "array",
             "format" : {
-                "type" : "object"
+                "type" : "object",
                 "format": {
                     "name" : {
                         "type": "string",
