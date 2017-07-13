@@ -73,11 +73,11 @@ string fields:
 {
     "name": {
         "type" : "string",
-        "required": true,
+        "required": true
     },
     "lastname": {
         "type" : "string",
-        "required": true,
+        "required": true
     },
     "birthday": {
         "type" : "string",
@@ -199,7 +199,7 @@ a JSON schema describing the nested object:
 
 ```json
 {
-    "type" : "number",
+    "type" : "object",
     "required": true,
     "format" : { ... }
 }
@@ -230,7 +230,7 @@ containing the name and age:
 }
 ```
 
-The JSON bellow would conform with the schema
+The JSON below would conform with the schema
 defined above:
 
 ```json
