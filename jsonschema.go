@@ -120,10 +120,9 @@ func checkInt(rawdata interface{}, format interface{}) error {
 	if err != nil {
 		return err
 	}
-	if strings.Contains(number.String(), ".") {
-		return fmt.Errorf("expected int number, got float[%s]", number)
-	}
-	return nil
+
+	_, err = number.Int64()
+	return err
 }
 
 func checkArray(rawdata interface{}, rawformat interface{}) error {
