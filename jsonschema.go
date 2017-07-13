@@ -7,10 +7,12 @@
 package jsonschema
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"reflect"
+	"strings"
 )
 
 // Check will check the given data according to
@@ -27,7 +29,9 @@ func Check(data []byte, schema []byte) error {
 	parsedData := map[string]interface{}{}
 	parsedSchema := map[string]interface{}{}
 
-	err := json.Unmarshal(data, &parsedData)
+	dec := json.NewDecoder(bytes.NewReader(data))
+	dec.UseNumber()
+	err := dec.Decode(&parsedData)
 	if err != nil {
 		return fmt.Errorf("error[%s] parsing non JSON data[%s]", err, string(data))
 	}
@@ -92,16 +96,33 @@ func checkString(rawdata interface{}, format interface{}) error {
 	return nil
 }
 
-func checkFloat(rawdata interface{}, format interface{}) error {
-	_, ok := rawdata.(float64)
+func checkNumber(rawdata interface{}) (json.Number, error) {
+	res, ok := rawdata.(json.Number)
 	if !ok {
-		return fmt.Errorf("expected float, got [%s]", reflect.TypeOf(rawdata))
+		return res, fmt.Errorf("expected json number, got [%s]", reflect.TypeOf(rawdata))
+	}
+	return res, nil
+}
+
+func checkFloat(rawdata interface{}, format interface{}) error {
+	number, err := checkNumber(rawdata)
+	if err != nil {
+		return err
+	}
+	if !strings.Contains(number.String(), ".") {
+		return fmt.Errorf("expected float number, got int[%s]", number)
 	}
 	return nil
 }
 
 func checkInt(rawdata interface{}, format interface{}) error {
-	// TODO
+	number, err := checkNumber(rawdata)
+	if err != nil {
+		return err
+	}
+	if strings.Contains(number.String(), ".") {
+		return fmt.Errorf("expected int number, got float[%s]", number)
+	}
 	return nil
 }
 
