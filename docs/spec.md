@@ -115,6 +115,29 @@ Here is a full example of multiple float fields:
 }
 ```
 
+JSON only has numbers, so what would be a float ?
+It is a JSON number with a fractional part (it requires one).
+
+Valid ones:
+
+```json
+{
+    "value": 20.0,
+    "other": 1e-005,
+    "something": 0.0001
+}
+```
+
+Invalid ones:
+
+```json
+{
+    "count": 16,
+    "start": 0,
+    "end": 255
+}
+```
+
 ## Int
 
 The int descriptor represents int numbers,
@@ -140,6 +163,28 @@ Here is a full example of multiple int fields:
         "type" : "int",
         "required": false,
     }
+}
+```
+
+JSON only has numbers, so what would be a int ?
+It is a JSON number without any fractional part.
+
+Valid integers:
+```json
+{
+    "count": 16,
+    "start": 0,
+    "end": 255,
+    "big": 100000000000000000000000000000000000000000000000000000000000000000000
+}
+```
+
+Invalid ones:
+```json
+{
+    "value": 20.0,
+    "other": 1e-005,
+    "something": 0.0001
 }
 ```
 
