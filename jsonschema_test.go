@@ -141,7 +141,19 @@ func TestFailureOn(t *testing.T) {
 					"type": "float"
 				}
 			}`,
-			success: true, //TODO
+			success: false,
+		},
+		Scenario{
+			name: "ExpectIntButGotFloat",
+			data: `{
+				"intField" : 1.33
+			}`,
+			schema: `{
+				"intField" : {
+					"type": "int"
+				}
+			}`,
+			success: false,
 		},
 		Scenario{
 			name: "UnknowDataField",
@@ -221,6 +233,18 @@ func TestFailureOn(t *testing.T) {
 			schema: `{
 				"stringField" : {
 					"type": "string"
+				}
+			}`,
+			success: false,
+		},
+		Scenario{
+			name: "WrongInt",
+			data: `{
+				"intField" : "lala"
+			}`,
+			schema: `{
+				"intField" : {
+					"type": "int"
 				}
 			}`,
 			success: false,
